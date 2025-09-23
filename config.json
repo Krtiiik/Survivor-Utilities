@@ -1,0 +1,83 @@
+{
+    "Teams count": 10,
+    "Teams names": [
+        "α [Alfa]",
+        "β [Beta]",
+        "δ [Delta]",
+        "ε [Epsilon]",
+        "ψ [Psí]",
+        "λ [Lambda]",
+        "π [Pí]",
+        "ρ [Ró]",
+        "σ [Sigma]",
+        "κ [Kappa]",
+        "φ [Fí]",
+        "ω [Omega]"
+    ],
+    "Subteams count": 4,
+    "Subteams": [
+        {
+            "Name": "1",
+            "Color": "#F08080"
+        },
+        {
+            "Name": "2",
+            "Color": "#98FB98"
+        },
+        {
+            "Name": "3",
+            "Color": "#87CEFA"
+        },
+        {
+            "Name": "4",
+            "Color": "#fff491"
+        }
+    ],
+    "Activities count": 10,
+    "Activities": [
+        {
+            "Name": "A",
+            "Type": "all"
+        },
+        {
+            "Name": "B",
+            "Type": "split"
+        },
+        {
+            "Name": "C",
+            "Type": "split"
+        },
+        {
+            "Name": "D",
+            "Type": "rest"
+        },
+        {
+            "Name": "E",
+            "Type": "all"
+        },
+        {
+            "Name": "F",
+            "Type": "split"
+        },
+        {
+            "Name": "G",
+            "Type": "split"
+        },
+        {
+            "Name": "H",
+            "Type": "rest"
+        },
+        {
+            "Name": "I",
+            "Type": "split"
+        },
+        {
+            "Name": "J",
+            "Type": "all"
+        }
+    ],
+    "Time": {
+        "Start": "13:00",
+        "Activity duration": "00:15"
+    }
+}
