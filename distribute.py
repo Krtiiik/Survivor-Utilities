@@ -343,9 +343,12 @@ class Format:
         "top": 2,
         "bottom": 2,
     }
-
     _count = {
         "border": 1,
+    }
+    _subteam_overflow = {
+        "bold": 1,
+        "font_color": "#ff0000",
     }
 
     @staticmethod
@@ -356,6 +359,7 @@ class Format:
         Format.Obor.dictionary = {obor: workbook.add_format(make_obor(obor)) for obor in Obor}
         Format.team = workbook.add_format(Format._team)
         Format.count = workbook.add_format(Format._count)
+        Format.subteam_overflow = workbook.add_format(Format._subteam_overflow)
 
     def format_kruh(kruh):
         if kruh.id < 100:
@@ -384,6 +388,7 @@ def write_solution(solution: Solution, worksheet: xlsxwriter.worksheet.Worksheet
     team_names = config["Teams names"]
 
     distribution = solution.distribution
+    num_teams = len(distribution)
     num_subteams = config["Subteams count"]
     num_kruhy = sum(1 for team in distribution for subteam in team for kruh in subteam)
 
@@ -414,6 +419,24 @@ def write_solution(solution: Solution, worksheet: xlsxwriter.worksheet.Worksheet
                 f"=SUM(XLOOKUP(C{1+row_subteam}:Z{1+row_subteam}, \'Kruhy-{solution.num_teams}_{solution.max_subteam_size}\'!A1:A{1+num_kruhy+1}, \'Kruhy-{solution.num_teams}_{solution.max_subteam_size}\'!B1:B{1+num_kruhy+1}))",
                 Format.count
             )
+
+    worksheet.conditional_format(0, 1,
+                                 num_teams * num_subteams - 1, 1,
+                                 options={
+                                     "type": "data_bar",
+                                     "min_type": "num",
+                                     "min_value": 0,
+                                     "max_type": "num",
+                                     "max_value": solution.max_subteam_size,
+                                 })
+    worksheet.conditional_format(0, 1,
+                                 num_teams * num_subteams - 1, 1,
+                                 options={
+                                     'type': 'cell',
+                                     'criteria': 'greater than',
+                                     'value': solution.max_subteam_size,
+                                     'format': Format.subteam_overflow,
+                                 })
 
 
 def write_solutions(filename: str, solutions: list[Solution], config: dict):
