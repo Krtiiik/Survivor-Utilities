@@ -1,5 +1,7 @@
 {
     "Teams count": 10,
+    "Possible Teams counts": [9, 10, 11, 12],
+    "Possible Teams sizes": [10, 9, 8, 7],
     "Teams names": [
         "α [Alfa]",
         "β [Beta]",
@@ -79,5 +81,31 @@
     "Time": {
         "Start": "13:00",
         "Activity duration": "00:15"
-    }
+    },
+    "Obory": [
+        {
+            "Name": "Fyzika",
+            "Kruhy": [11, 12, 13, 14, 15, 16, 17, 18]
+        },
+        {
+            "Name": "Matematické Modelování",
+            "Kruhy": [19, 20]
+        },
+        {
+            "Name": "Informatika",
+            "Kruhy": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+        },
+        {
+            "Name": "Obecná Matematika, MIT",
+            "Kruhy": [51, 52, 53, 54, 55, 56, 57, 58]
+        },
+        {
+            "Name": "Finanční Matematika",
+            "Kruhy": [61, 62, 63, 64]
+        },
+        {
+            "Name": "Učitelství",
+            "Kruhy": [70, 71, 72, 73, 74, 75]
+        }
+    ]
 }
