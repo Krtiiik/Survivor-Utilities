@@ -74,5 +74,64 @@ The following keys need to be present:
   - `"Start"` (`str`) - start of the event in `hh:mm` format.
   - `"Activity duration"` (`str`) - duration of activities in `hh:mm` format.
 
+### Excel output
+
 The resulting timesheet (stored in `OUTPUT`) can then be "printed" (exported) to a pdf file for printing.
 Any changes made to the resulting timesheet file are overwritten with each script run.
+
+## Team distribution and assignment (`distribute.py`)
+
+> Specific words - such as *Kruhy* or *Obory* - are not translated.
+> It may prove difficult to read such a combination of languages... for that I apologize.
+
+Script used to distribute and assign people from Kruhy (study groups) into Teams and Subteams.
+Each Team has the same number of Subteams.
+Each Subteam consists of people from some Kruhy.
+Run using:
+
+```
+python distribute.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]
+```
+
+where
+
+- `CONFIG` holds data about teams and subteams, their sizes and other information.
+  Default `config.json`.
+- `COUNTS` contains sizes of Kruhy.
+  Default `counts.json`.
+- `OUTPUT` is an output `.xlsx` Excel file to write to.
+  If this file exists, it is overwritten.
+  Default `distributions.xlsx`.
+
+### Configuration
+
+The configuration is a JSON file, specifying important data about the event.
+The following keys need to be present:
+
+- `"Possible Teams counts"` (`list[int]`) - possible maximum counts of Teams.
+- `"Possible Teams sizes"` (`list[int]`) - possible sizes of Subteams.
+- `"Teams names"` (`list[string]`) - names of teams.
+  Must contain at least as many names as given by any of the values in `"Possible Teams counts"`.
+- `"Subteams count"` (`int`) - number of Subteams per team.
+- `"Obory"` (`object`) - definitions of Obory.
+  Contains
+  - `"Name"` (`str`) - name of the Obor
+  - `"Kruhy"` (`list[int]`) - Kruhy in the Obor
+
+### Algorithm
+
+For each combination of values from `Possible Team counts` and `Possible Team sizes` the script build a model and tries to assign the Kruhy in Teams and Subteams, minimizing multiple objectives:
+
+- Number of Teams
+- Number of different Obory in a single Team
+
+If successful (feasible or optimal solution has been found) the script saves the resulting distribution.
+
+### Excel output
+
+The resulting Excel workbook contains for each resulting distribution two worksheets - definition of Kruhy and the Teams distribution.
+The resulting distribution can be further rearranged.
+Because of some inner workings of the `xlsxwriter` library and Excel itself the names of Kruhy can not be recognized as strings but are interpreted as numbers.
+For this, it is **crucial not to edit** (editing the cell and confirming with `Enter`, for example) the individual cells.
+To rearrange the assignments, the cells must be **cut** [`Ctrl+X`] and **pasted** [`Ctrl+V`].
+This automatically recomputes the Subteam sizes.
