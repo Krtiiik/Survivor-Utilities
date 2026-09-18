@@ -13,6 +13,9 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   Activity names -- `resizeColumnsToContents()` undersizes a column that
   holds a row-spanned cell, so its width is now corrected against the
   actual text width.
+- Distribution tab: the Size column now has a visible vertical divider,
+  right-aligned numbers, and a snug (non-stretched) width, instead of
+  butting up against the Team/Subteam/Kruh labels with no clear boundary.
 
 ### Added
 

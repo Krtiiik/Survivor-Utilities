@@ -26,6 +26,18 @@ class DistributionGrid(QTreeWidget):
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        # Without this, the Size column has no visible boundary against the tree
+        # column, so its numbers read as if they belonged to whichever row label
+        # happens to sit next to them -- a vertical rule and right-aligned numbers
+        # make the two columns unambiguous at a glance.
+        self.setAlternatingRowColors(True)
+        self.setStyleSheet(
+            "QTreeWidget::item { border-right: 1px solid palette(mid); padding: 2px 6px; }"
+        )
+        # Keep the Size column snug against its content instead of stretching across
+        # any leftover width, so its numbers sit right after the divider above,
+        # rather than off in empty space on the far side of a wide panel.
+        self.header().setStretchLastSection(False)
 
         self._max_subteam_size = 0
         self._kruh_lookup: dict[int, Kruh] = {}
@@ -44,6 +56,7 @@ class DistributionGrid(QTreeWidget):
             )
             team_item = QTreeWidgetItem([team_name, ""])
             team_item.setFlags(team_item.flags() & ~Qt.ItemFlag.ItemIsDragEnabled)
+            team_item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
             self.addTopLevelItem(team_item)
 
             for i_subteam, subteam in enumerate(team):
@@ -54,6 +67,7 @@ class DistributionGrid(QTreeWidget):
                 subteam_item.setFlags(
                     (subteam_item.flags() | Qt.ItemFlag.ItemIsDropEnabled) & ~Qt.ItemFlag.ItemIsDragEnabled
                 )
+                subteam_item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
                 team_item.addChild(subteam_item)
 
                 for kruh in subteam:
@@ -63,6 +77,7 @@ class DistributionGrid(QTreeWidget):
                     kruh_item.setFlags(
                         (kruh_item.flags() | Qt.ItemFlag.ItemIsDragEnabled) & ~Qt.ItemFlag.ItemIsDropEnabled
                     )
+                    kruh_item.setTextAlignment(1, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
                     color = obor_colors.get(kruh.obor)
                     if color:
                         kruh_item.setBackground(0, QBrush(QColor(color)))
@@ -74,11 +89,14 @@ class DistributionGrid(QTreeWidget):
 
         self._recompute_sizes()
         self._flag_split_friends()
+        self.resizeColumnToContents(0)
+        self.resizeColumnToContents(1)
 
     def dropEvent(self, event) -> None:
         super().dropEvent(event)
         self._recompute_sizes()
         self._flag_split_friends()
+        self.resizeColumnToContents(1)
         self.edited.emit()
 
     def extract_distribution(self) -> T_Distribution:
