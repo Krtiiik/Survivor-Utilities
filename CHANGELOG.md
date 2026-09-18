@@ -7,6 +7,14 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Distribution tab: selecting a row in the Team/Subteam/Kruh grid no longer
+  blanks out that row's text until you click elsewhere -- Windows' native
+  style stops applying its default selected-row colors as soon as any
+  `::item` styling is present, so the selected state's colors are now set
+  explicitly.
+
 ## [1.1.0] - 2026-09-18
 
 ### Fixed

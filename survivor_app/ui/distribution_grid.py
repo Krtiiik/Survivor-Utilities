@@ -34,6 +34,10 @@ class DistributionGrid(QTreeWidget):
         self.setAlternatingRowColors(True)
         self.setStyleSheet(
             "QTreeWidget::item { border-right: 1px solid palette(mid); padding: 2px 6px; }"
+            # Styling ::item at all makes Qt's Windows style stop applying its default
+            # selected-row colors, which otherwise left selected rows rendering blank
+            # until the widget repainted for an unrelated reason (e.g. clicking away).
+            "QTreeWidget::item:selected { background: palette(highlight); color: palette(highlighted-text); }"
         )
         # Keep the size columns snug against their content instead of stretching
         # across any leftover width, so their numbers sit right after the divider
