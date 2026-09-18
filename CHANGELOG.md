@@ -16,6 +16,10 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 - Distribution tab: the Size column now has a visible vertical divider,
   right-aligned numbers, and a snug (non-stretched) width, instead of
   butting up against the Team/Subteam/Kruh labels with no clear boundary.
+- Distribution tab: Team, Subteam, and Kruh sizes are now each in their own
+  column ("Team size", "Subteam size", "Kruh size", each filled only on the
+  rows it applies to) instead of sharing one "Size" column distinguished only
+  by indentation.
 
 ### Changed
 
