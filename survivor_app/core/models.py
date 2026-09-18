@@ -36,6 +36,16 @@ class Solution:
     distribution: T_Distribution
     time: float | None = None
 
+    def size_balance_score(self) -> int:
+        """Lower is more evenly sized. Mirrors the solver's own balance tie-breaker
+        (2 * Team-size spread + Subteam-size spread), recomputed from the actual
+        assigned Kruhy so it stays correct after manual edits to the distribution."""
+        team_sizes = [sum(kruh.count for subteam in team for kruh in subteam) for team in self.distribution]
+        subteam_sizes = [sum(kruh.count for kruh in subteam) for team in self.distribution for subteam in team]
+        team_spread = (max(team_sizes) - min(team_sizes)) if team_sizes else 0
+        subteam_spread = (max(subteam_sizes) - min(subteam_sizes)) if subteam_sizes else 0
+        return 2 * team_spread + subteam_spread
+
 
 @dataclass
 class ProgressEvent:

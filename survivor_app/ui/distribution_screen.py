@@ -171,12 +171,13 @@ class DistributionScreen(QWidget):
         self._export_button.setEnabled(False)
         self._banner.setText("")
 
-        for solution in solutions:
-            if solution.status not in (SolutionStatus.FEASIBLE, SolutionStatus.OPTIMAL):
-                continue
+        feasible = [s for s in solutions if s.status in (SolutionStatus.FEASIBLE, SolutionStatus.OPTIMAL)]
+        feasible.sort(key=lambda s: s.size_balance_score())
+
+        for solution in feasible:
             label = (
                 f"#Teams={solution.num_teams}, MaxSubteamSize={solution.max_subteam_size}, "
-                f"{solution.status.name}, {solution.time:.1f}s"
+                f"{solution.status.name}, {solution.time:.1f}s, BalanceScore={solution.size_balance_score()}"
             )
             item = QListWidgetItem(label)
             item.setData(SOLUTION_ROLE, solution)

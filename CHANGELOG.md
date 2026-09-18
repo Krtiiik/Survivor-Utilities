@@ -14,6 +14,10 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   between the largest and smallest Team size, and separately between the
   largest and smallest Subteam size, so Teams and Subteams come out as close
   to equally sized as the other constraints allow.
+- Distribution tab: the results list (one candidate per Possible-Teams-count x
+  Possible-Teams-size combination) is now sorted by that same size-balance
+  score, so the most evenly-sized candidate is listed first instead of just
+  following config combination order. Each entry now also shows its score.
 
 ### Fixed
 
