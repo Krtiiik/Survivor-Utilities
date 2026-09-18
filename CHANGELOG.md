@@ -7,6 +7,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-18
+
 ### Changed
 
 - Distribution solver: as a tie-breaker below the existing Team-count and
@@ -18,6 +20,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   Possible-Teams-size combination) is now sorted by that same size-balance
   score, so the most evenly-sized candidate is listed first instead of just
   following config combination order. Each entry now also shows its score.
+- Distribution tab: a Kruh's Obor color now fills its whole row in the grid,
+  instead of only the "Team / Subteam / Kruh" label cell.
 
 ### Fixed
 
@@ -27,11 +31,6 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   blanked out selected rows (until an unrelated repaint) *and* prevented Obor
   row colors from ever showing. The divider is now painted by a small item
   delegate instead, leaving normal background/selection rendering intact.
-
-### Changed
-
-- Distribution tab: a Kruh's Obor color now fills its whole row in the grid,
-  instead of only the "Team / Subteam / Kruh" label cell.
 
 ## [1.1.0] - 2026-09-18
 
@@ -92,6 +91,7 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   `timesheet_cli.py`) are now thin wrappers over `survivor_app/core/`, kept
   for scripting/automation.
 
-[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Krtiiik/Survivor-Utilities/releases/tag/v1.0.0
