@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject, Signal
 
 from ..core.config import Config, load_config, save_config, validate
 from ..core.counts import decrement, increment, load_counts, save_counts
+from ..core.history import CountHistory, HistoryEntry
 from ..core.models import Solution, T_Distribution
 from . import paths
 
@@ -15,6 +16,7 @@ from . import paths
 class AppState(QObject):
     configChanged = Signal()
     countsChanged = Signal()
+    historyChanged = Signal()
     solutionsReady = Signal(list)  # list[Solution]
     distributionEdited = Signal()
 
@@ -25,6 +27,7 @@ class AppState(QObject):
 
         self.config: Config = Config.empty()
         self.counts: dict[int, int] = {}
+        self.history: CountHistory = CountHistory()
         self.solutions: list[Solution] = []
         self.selected_solution: Solution | None = None
         self.edited_distribution: T_Distribution | None = None
@@ -62,11 +65,27 @@ class AppState(QObject):
 
     def increment_kruh(self, kruh_id: int) -> None:
         increment(kruh_id, self.counts)
+        self.history.record(kruh_id)
         self._save_counts()
+        self.historyChanged.emit()
 
     def decrement_kruh(self, kruh_id: int) -> None:
         decrement(kruh_id, self.counts)
         self._save_counts()
+
+    def undo(self) -> HistoryEntry | None:
+        entry = self.history.undo(self.counts)
+        if entry is not None:
+            self._save_counts()
+            self.historyChanged.emit()
+        return entry
+
+    def redo(self) -> HistoryEntry | None:
+        entry = self.history.redo(self.counts)
+        if entry is not None:
+            self._save_counts()
+            self.historyChanged.emit()
+        return entry
 
     def _save_counts(self) -> None:
         save_counts(self.counts, self.counts_path)

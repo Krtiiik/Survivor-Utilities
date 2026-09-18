@@ -7,6 +7,12 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Counter tab: a keyboard-entry field to record an attendee by typing their
+  Kruh number and pressing Enter, an in-session history of recent increments,
+  and Undo/Redo for them.
+
 ## [1.0.0] - 2026-09-18
 
 ### Added

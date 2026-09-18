@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from survivor_app.core.config import Config, load_config, validate
 from survivor_app.core.counts import decrement, increment, load_counts, summarize
 from survivor_app.core.distribute import compute_distributions, compute_kruhy_split
+from survivor_app.core.history import CountHistory
 from survivor_app.core.models import Kruh, SolutionStatus, format_kruh_label
 from survivor_app.core.timesheet import compute_timetable_layout
 
@@ -41,6 +42,44 @@ def test_counts_increment_decrement_summarize():
     assert 99 not in fresh  # dropped to 0 -> removed, matching legacy behavior
     decrement(99, fresh)  # decrementing an absent Kruh is a no-op
     assert fresh == {}
+
+
+def test_count_history_undo_redo():
+    counts: dict[int, int] = {}
+    history = CountHistory()
+    assert not history.can_undo()
+    assert not history.can_redo()
+
+    increment(11, counts)
+    history.record(11)
+    increment(11, counts)
+    history.record(11)
+    increment(21, counts)
+    history.record(21)
+    assert counts == {11: 2, 21: 1}
+    assert [e.kruh_id for e in history.entries] == [11, 11, 21]
+
+    entry = history.undo(counts)
+    assert entry.kruh_id == 21
+    assert counts == {11: 2}
+    assert history.can_redo()
+
+    entry = history.redo(counts)
+    assert entry.kruh_id == 21
+    assert counts == {11: 2, 21: 1}
+    assert not history.can_redo()
+
+    # A fresh increment after an undo clears the redo stack (standard undo/redo semantics).
+    history.undo(counts)
+    increment(31, counts)
+    history.record(31)
+    assert not history.can_redo()
+    assert [e.kruh_id for e in history.entries] == [11, 11, 31]
+
+    # Undo/redo on an empty stack is a no-op, not an error.
+    empty_history = CountHistory()
+    assert empty_history.undo(counts) is None
+    assert empty_history.redo(counts) is None
 
 
 def test_format_kruh_label_handles_splits():

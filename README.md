@@ -37,9 +37,11 @@ The app has four tabs, usable in any order (not a strict wizard, since the real
 workflow often isn't linear -- you might recount mid-event, or regenerate the
 timesheet without re-running the solver):
 
-1. **Counter** -- click `+`/`-` next to each Kruh (grouped by Obor) to record
-   attendance as people arrive. Counts autosave to `counts.json` after every
-   click.
+1. **Counter** -- click `+`/`-` next to each Kruh (grouped by Obor), or type a
+   Kruh number into the entry field and press Enter, to record attendance as
+   people arrive. Counts autosave to `counts.json` after every change. Every
+   increment (button or keyboard) appears in the "Recent increments" list and
+   can be undone/redone.
 2. **Distribution** -- runs a solver that assigns Kruhy into Teams and
    Subteams (see "Team distribution algorithm" below), lets you pick from the
    resulting candidates, then drag Kruhy between Teams/Subteams directly in the

@@ -45,6 +45,29 @@ def run():
                 counter_tab._decrement(any_kruh_id)
                 app.processEvents()
 
+                before = window.state.counts.get(any_kruh_id, 0)
+                counter_tab._entry_field.setText(str(any_kruh_id))
+                counter_tab._submit_entry()
+                app.processEvents()
+                assert window.state.counts[any_kruh_id] == before + 1
+                assert counter_tab._entry_field.text() == ""
+                assert counter_tab._history_list.count() >= 1
+
+                counter_tab._entry_field.setText("999999")
+                counter_tab._submit_entry()
+                app.processEvents()
+                assert window.state.counts.get(999999, 0) == 0, "unknown Kruh must not be counted"
+
+                assert counter_tab._undo_button.isEnabled()
+                counter_tab._undo()
+                app.processEvents()
+                assert window.state.counts.get(any_kruh_id, 0) == before
+                assert counter_tab._redo_button.isEnabled()
+
+                counter_tab._redo()
+                app.processEvents()
+                assert window.state.counts[any_kruh_id] == before + 1
+
             config_tab = window._tabs.widget(3)
             config_tab._reload()
             built = config_tab._build_config()
