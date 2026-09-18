@@ -9,11 +9,17 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
-- Distribution tab: selecting a row in the Team/Subteam/Kruh grid no longer
-  blanks out that row's text until you click elsewhere -- Windows' native
-  style stops applying its default selected-row colors as soon as any
-  `::item` styling is present, so the selected state's colors are now set
-  explicitly.
+- Distribution tab: the Team/Subteam/Kruh grid's per-column divider was drawn
+  via a `QTreeWidget::item` stylesheet rule, which on Windows' native style
+  breaks Qt's normal per-item background painting entirely -- this silently
+  blanked out selected rows (until an unrelated repaint) *and* prevented Obor
+  row colors from ever showing. The divider is now painted by a small item
+  delegate instead, leaving normal background/selection rendering intact.
+
+### Changed
+
+- Distribution tab: a Kruh's Obor color now fills its whole row in the grid,
+  instead of only the "Team / Subteam / Kruh" label cell.
 
 ## [1.1.0] - 2026-09-18
 

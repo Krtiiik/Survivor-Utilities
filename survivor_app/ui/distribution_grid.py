@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QBrush, QColor
-from PySide6.QtWidgets import QAbstractItemView, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QAbstractItemView, QStyledItemDelegate, QTreeWidget, QTreeWidgetItem
 
 from ..core.config import Config
 from ..core.excel_export import obor_color_map
@@ -10,6 +10,24 @@ from ..core.models import Kruh, T_Distribution, format_kruh_label
 
 KRUH_ID_ROLE = Qt.ItemDataRole.UserRole
 OVERFLOW_COLOR = QColor("#ffcdd2")
+
+
+class _ColumnDividerDelegate(QStyledItemDelegate):
+    """Paints a vertical divider between columns. This used to be a
+    `QTreeWidget::item` stylesheet rule, but styling ::item at all makes Qt's
+    Windows style stop painting Qt::BackgroundRole colors -- the Obor row colors
+    and the Subteam overflow warning both silently stopped rendering because of
+    it. Painting the divider by hand keeps the default (working) background/
+    selection rendering intact."""
+
+    def paint(self, painter, option, index) -> None:
+        super().paint(painter, option, index)
+        painter.save()
+        pen = painter.pen()
+        pen.setColor(option.palette.mid().color())
+        painter.setPen(pen)
+        painter.drawLine(option.rect.topRight(), option.rect.bottomRight())
+        painter.restore()
 
 
 class DistributionGrid(QTreeWidget):
@@ -32,13 +50,7 @@ class DistributionGrid(QTreeWidget):
         # column (each blank on rows it doesn't apply to) means a number's meaning is
         # given by which column it's in, not how far indented its row happens to be.
         self.setAlternatingRowColors(True)
-        self.setStyleSheet(
-            "QTreeWidget::item { border-right: 1px solid palette(mid); padding: 2px 6px; }"
-            # Styling ::item at all makes Qt's Windows style stop applying its default
-            # selected-row colors, which otherwise left selected rows rendering blank
-            # until the widget repainted for an unrelated reason (e.g. clicking away).
-            "QTreeWidget::item:selected { background: palette(highlight); color: palette(highlighted-text); }"
-        )
+        self.setItemDelegate(_ColumnDividerDelegate(self))
         # Keep the size columns snug against their content instead of stretching
         # across any leftover width, so their numbers sit right after the divider
         # above, rather than off in empty space on the far side of a wide panel.
@@ -84,7 +96,9 @@ class DistributionGrid(QTreeWidget):
                     kruh_item.setTextAlignment(3, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
                     color = obor_colors.get(kruh.obor)
                     if color:
-                        kruh_item.setBackground(0, QBrush(QColor(color)))
+                        brush = QBrush(QColor(color))
+                        for column in range(self.columnCount()):
+                            kruh_item.setBackground(column, brush)
                     subteam_item.addChild(kruh_item)
 
             team_item.setExpanded(True)
