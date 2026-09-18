@@ -55,6 +55,27 @@ This is the only module with real algorithmic complexity — a constraint-satisf
 - A single 30s (`SOLVER_TIME_LIMIT`) solve can be cancelled early via a `CpSolverSolutionCallback` (`_CancelCallback`) driven by the GUI's Cancel button; the outer per-combination loop also checks the same `should_cancel` between combinations.
 - Export (`core.excel_export.export_distribution`) writes only the single selected/edited distribution as a static workbook — Subteam sizes are plain numbers computed in-memory, **not** live `XLOOKUP` formulas, so (unlike the original script's output) the exported file has no cut-and-paste-only editing caveat.
 
+## Versioning
+
+The project follows [Semantic Versioning](https://semver.org/) starting at
+`1.0.0` (the PySide6 rework). `CHANGELOG.md` follows
+[Keep a Changelog](https://keepachangelog.com/en/1.0.0/): every user-facing
+change (new feature, fix, behavior change) gets an entry under
+`## [Unreleased]` at the top, added in the same commit/session as the change
+itself, not batched later.
+
+When a batch of `[Unreleased]` changes is substantial enough to be worth
+shipping as a release (judgment call — a meaningful feature or fix, not every
+single commit), move that section under a new `## [X.Y.Z] - YYYY-MM-DD`
+heading, bump the version (patch for fixes, minor for backwards-compatible
+features, major for breaking changes to `config.json`'s schema or the CLI
+interfaces), update the compare links at the bottom of the file, and tag the
+commit: `git tag -a vX.Y.Z -m "vX.Y.Z"`. Pushing that tag (`git push origin
+vX.Y.Z`) triggers `.github/workflows/build.yml`'s `release` job, which builds
+the Windows/Linux executables and publishes them to a GitHub Release — so
+confirm with the user before pushing a tag, the same way you would before any
+other action visible to others.
+
 ## Config schema notes
 
 `"Subteams count"`/`"Activities count"` were removed from `config.json` — those counts are now derived from `len(config["Subteams"])`/`len(config["Activities"])` (see `Config.subteams_count`/`activities_count` in `core/config.py`). `"Teams count"` is *not* redundant with `len(Teams names)` and was kept: it's the actual number of Teams the Timesheet renders, while `"Teams names"` just needs to be at least that long (and at least as long as the largest value in `"Possible Teams counts"`, for the Distribution solver). `"Activity duration"` is HH:MM (matches the README and the code's actual runtime behavior).
