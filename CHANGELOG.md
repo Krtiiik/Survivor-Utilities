@@ -7,6 +7,13 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Timesheet tab: the Activities column no longer ellipsis-truncates long
+  Activity names -- `resizeColumnsToContents()` undersizes a column that
+  holds a row-spanned cell, so its width is now corrected against the
+  actual text width.
+
 ### Added
 
 - Counter tab: a keyboard-entry field to record an attendee by typing their

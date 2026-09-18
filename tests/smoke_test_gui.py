@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QTimer
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QApplication
 
 from survivor_app.ui import paths as ui_paths
@@ -93,6 +94,22 @@ def run():
             timesheet_tab = window._tabs.widget(2)
             timesheet_tab.refresh()
             assert timesheet_tab._preview.rowCount() > 0
+
+            # Activity names must not get ellipsis-truncated in the first column, even
+            # when unusually long -- regression check for a Qt quirk where
+            # resizeColumnsToContents() undersizes a column holding a row-spanned cell.
+            long_name = "This is a really long activity name that should not be truncated"
+            window.state.config.activities[0].name = long_name
+            timesheet_tab.refresh()
+            app.processEvents()
+            preview = timesheet_tab._preview
+            long_item = next(
+                preview.item(row, 0)
+                for row in range(preview.rowCount())
+                if preview.item(row, 0) is not None and preview.item(row, 0).text() == long_name
+            )
+            needed_width = QFontMetrics(long_item.font()).horizontalAdvance(long_name)
+            assert preview.columnWidth(0) >= needed_width, "activity name column must autofit long names"
 
             print("GUI smoke test passed.")
         except Exception as exc:  # noqa: BLE001
