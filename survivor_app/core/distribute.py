@@ -128,6 +128,8 @@ def compute_teams_distribution(
     lst_subteams = list(range(num_subteams))
     lst_obory = list(range(len(obor_names)))
 
+    total_count = sum(kruh.count for kruh in kruhy)
+
     # Variables
     vs_kruh_team = {}
     vs_kruh_subteam = {}
@@ -138,6 +140,8 @@ def compute_teams_distribution(
     vs_team_subteam_used = {}
     vs_kruh_order = {}
     as_team_obor = {}
+    vs_team_size = {}
+    vs_team_subteam_size = {}
     for kruh in kruhy:
         v_kruh_team = model.new_int_var_from_domain(dom_teams, f"KruhTeam[{kruh.id}]")
         vs_kruh_team[kruh.id] = v_kruh_team
@@ -163,6 +167,9 @@ def compute_teams_distribution(
     for team in lst_teams:
         v_team_used = model.new_bool_var(f"TeamUsed[{team}]")
         vs_team_used[team] = v_team_used
+
+        v_team_size = model.new_int_var(0, total_count, f"TeamSize[{team}]")
+        vs_team_size[team] = v_team_size
 
         for obor in lst_obory:
             a_team_obor = model.new_bool_var(f"TeamObor[{team},{obor}]")
@@ -210,6 +217,12 @@ def compute_teams_distribution(
         # - TeamUsed when Team is used
         model.add_max_equality(vs_team_used[team], [as_kruh_team[kruh.id, team] for kruh in kruhy])
 
+        # - TeamSize definition
+        model.add(
+            vs_team_size[team]
+            == cp_model.LinearExpr.sum([kruh.count * as_kruh_team[kruh.id, team] for kruh in kruhy])
+        )
+
         # - Team has its Obory
         for obor in lst_obory:
             model.add_max_equality(
@@ -225,13 +238,17 @@ def compute_teams_distribution(
             )
 
     # Constraints
-    # - Team size must not exceed max_team_size
+    # - Subteam size must not exceed max_subteam_size
     for team in lst_teams:
         for subteam in lst_subteams:
-            expr_subteam_size = cp_model.LinearExpr.sum(
-                [kruh.count * as_kruh_team_subteam[kruh.id, team, subteam] for kruh in kruhy]
+            v_subteam_size = model.new_int_var(0, max_subteam_size, f"SubteamSize[{team},{subteam}]")
+            vs_team_subteam_size[team, subteam] = v_subteam_size
+            model.add(
+                v_subteam_size
+                == cp_model.LinearExpr.sum(
+                    [kruh.count * as_kruh_team_subteam[kruh.id, team, subteam] for kruh in kruhy]
+                )
             )
-            model.add(expr_subteam_size <= max_subteam_size)
 
     # - Friends must be in a same Team
     for friends in kruhy_friends:
@@ -251,6 +268,48 @@ def compute_teams_distribution(
                     as_kruh_team[kruh1.id, team], as_kruh_team[kruh2.id, team]
                 )
 
+    # - Balance Team sizes: track the spread (max - min) of sizes across used Teams.
+    # Unused Teams (size 0) are excluded from the min via a sentinel value, so an
+    # unused Team never masquerades as the smallest (and therefore "best balanced") one.
+    sentinel_team_size = total_count + 1
+    vs_team_size_for_min = {}
+    for team in lst_teams:
+        v_team_size_for_min = model.new_int_var(0, sentinel_team_size, f"TeamSizeForMin[{team}]")
+        vs_team_size_for_min[team] = v_team_size_for_min
+        model.add(v_team_size_for_min == vs_team_size[team]).only_enforce_if(vs_team_used[team])
+        model.add(v_team_size_for_min == sentinel_team_size).only_enforce_if(vs_team_used[team].Not())
+
+    v_team_size_max = model.new_int_var(0, total_count, "TeamSizeMax")
+    model.add_max_equality(v_team_size_max, [vs_team_size[team] for team in lst_teams])
+    v_team_size_min = model.new_int_var(0, sentinel_team_size, "TeamSizeMin")
+    model.add_min_equality(v_team_size_min, [vs_team_size_for_min[team] for team in lst_teams])
+
+    # - Balance Subteam sizes: same spread trick, over every (Team, Subteam) slot.
+    sentinel_subteam_size = max_subteam_size + 1
+    vs_team_subteam_size_for_min = {}
+    for team in lst_teams:
+        for subteam in lst_subteams:
+            v_subteam_size_for_min = model.new_int_var(
+                0, sentinel_subteam_size, f"SubteamSizeForMin[{team},{subteam}]"
+            )
+            vs_team_subteam_size_for_min[team, subteam] = v_subteam_size_for_min
+            model.add(v_subteam_size_for_min == vs_team_subteam_size[team, subteam]).only_enforce_if(
+                vs_team_subteam_used[team, subteam]
+            )
+            model.add(v_subteam_size_for_min == sentinel_subteam_size).only_enforce_if(
+                vs_team_subteam_used[team, subteam].Not()
+            )
+
+    v_subteam_size_max = model.new_int_var(0, max_subteam_size, "SubteamSizeMax")
+    model.add_max_equality(
+        v_subteam_size_max, [vs_team_subteam_size[team, subteam] for team in lst_teams for subteam in lst_subteams]
+    )
+    v_subteam_size_min = model.new_int_var(0, sentinel_subteam_size, "SubteamSizeMin")
+    model.add_min_equality(
+        v_subteam_size_min,
+        [vs_team_subteam_size_for_min[team, subteam] for team in lst_teams for subteam in lst_subteams],
+    )
+
     # Objective
     # - Minimize used number of teams
     expression_used_team_count = cp_model.LinearExpr.sum([vs_team_used[team] for team in lst_teams])
@@ -260,7 +319,22 @@ def compute_teams_distribution(
         [as_team_obor[team, obor] for team in lst_teams for obor in lst_obory]
     )
 
-    model.minimize(expression_used_team_count + expression_team_obory_sum)
+    # - Minimize the spread of Team and Subteam sizes, so both come out close to the
+    # common average ("ideally the same size"). This is a tie-breaker only: it's scaled
+    # so it can never outweigh the Team-count/Obory terms above, only choose between
+    # solutions that already tie on those.
+    expression_team_size_spread = v_team_size_max - v_team_size_min
+    expression_subteam_size_spread = v_subteam_size_max - v_subteam_size_min
+
+    # Must dominate the largest possible value of the weighted balance terms below
+    # (2 * team_size_spread + subteam_size_spread), so it never overrides the
+    # Team-count/Obory priorities, only breaks ties between solutions equal on those.
+    balance_scale = 2 * total_count + max_subteam_size + 1
+    model.minimize(
+        (expression_used_team_count + expression_team_obory_sum) * balance_scale
+        + 2 * expression_team_size_spread
+        + expression_subteam_size_spread
+    )
 
     # Solve ------------------------------------------------------------------
     solver = cp_model.CpSolver()

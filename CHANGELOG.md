@@ -7,6 +7,14 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Distribution solver: as a tie-breaker below the existing Team-count and
+  Obory-per-Team objectives, the CP-SAT model now also minimizes the spread
+  between the largest and smallest Team size, and separately between the
+  largest and smallest Subteam size, so Teams and Subteams come out as close
+  to equally sized as the other constraints allow.
+
 ### Fixed
 
 - Distribution tab: the Team/Subteam/Kruh grid's per-column divider was drawn
