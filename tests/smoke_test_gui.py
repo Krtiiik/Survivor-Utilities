@@ -68,6 +68,23 @@ def run():
                 app.processEvents()
                 assert window.state.counts[any_kruh_id] == before + 1
 
+                # Save-as/load/reset go through AppState directly, skipping the OS
+                # file picker (which would block waiting for input in a headless run).
+                snapshot_path = os.path.join(_scratch_dir, "counts_snapshot.json")
+                snapshot_counts = dict(window.state.counts)
+                window.state.save_counts_as(snapshot_path)
+                assert os.path.exists(snapshot_path)
+
+                window.state.reset_counts()
+                app.processEvents()
+                assert window.state.counts == {}
+                assert not window.state.history.can_undo()
+
+                window.state.load_counts_from(snapshot_path)
+                app.processEvents()
+                assert window.state.counts == snapshot_counts
+                assert not window.state.history.can_undo(), "loading should start a fresh history"
+
             config_tab = window._tabs.widget(3)
             config_tab._reload()
             built = config_tab._build_config()

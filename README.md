@@ -41,7 +41,12 @@ timesheet without re-running the solver):
    Kruh number into the entry field and press Enter, to record attendance as
    people arrive. Counts autosave to `counts.json` after every change. Every
    increment (button or keyboard) appears in the "Recent increments" list and
-   can be undone/redone.
+   can be undone/redone. "Save counts as..." exports the current counts to a
+   file of your choice (an OS file picker), "Load counts..." replaces the
+   current counts with those from a chosen file, and "Reset counts" clears
+   them back to zero -- all three ask for confirmation where destructive, and
+   none of them change where autosave writes: it always keeps saving to the
+   default `counts.json`, even right after a save-as or a load.
 2. **Distribution** -- runs a solver that assigns Kruhy into Teams and
    Subteams (see "Team distribution algorithm" below), lets you pick from the
    resulting candidates, then drag Kruhy between Teams/Subteams directly in the

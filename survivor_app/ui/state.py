@@ -87,6 +87,26 @@ class AppState(QObject):
             self.historyChanged.emit()
         return entry
 
+    def reset_counts(self) -> None:
+        """Clear all counts back to zero and autosave, same as any other edit."""
+        self.counts = {}
+        self.history = CountHistory()
+        self._save_counts()
+        self.historyChanged.emit()
+
+    def load_counts_from(self, filename: str) -> None:
+        """Replace the current counts with those loaded from an arbitrary file, then
+        autosave to the default counts file -- loading never repoints future autosaves."""
+        self.counts = load_counts(filename)
+        self.history = CountHistory()
+        self._save_counts()
+        self.historyChanged.emit()
+
+    def save_counts_as(self, filename: str) -> None:
+        """Write a snapshot of the current counts to an arbitrary file, without touching
+        the default counts file that autosave keeps writing to."""
+        save_counts(self.counts, filename)
+
     def _save_counts(self) -> None:
         save_counts(self.counts, self.counts_path)
         self.countsChanged.emit()

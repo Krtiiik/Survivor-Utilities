@@ -4,12 +4,14 @@ from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QIntValidator
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QFileDialog,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QListWidget,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QTableWidget,
@@ -29,7 +31,12 @@ class CounterScreen(QWidget):
     by Obor, a keyboard-entry field for typing a Kruh number and pressing Enter, a
     live totals table, and autosave-on-every-click (same cadence as the original
     counter.py). Every increment (button or keyboard) is recorded in AppState's
-    history for undo/redo."""
+    history for undo/redo.
+
+    "Save counts as..." and "Load counts..." go through an OS file picker and act on
+    an arbitrary file (a snapshot export / an import), while autosave always keeps
+    writing to the default counts.json regardless -- so a save-as or a load can never
+    accidentally repoint where every future click gets persisted."""
 
     def __init__(self, state: AppState):
         super().__init__()
@@ -60,6 +67,22 @@ class CounterScreen(QWidget):
 
         entry_row.addStretch(1)
         layout.addLayout(entry_row)
+
+        file_row = QHBoxLayout()
+        self._save_button = QPushButton("Save counts as...")
+        self._save_button.clicked.connect(self._save_as)
+        file_row.addWidget(self._save_button)
+
+        self._load_button = QPushButton("Load counts...")
+        self._load_button.clicked.connect(self._load_from)
+        file_row.addWidget(self._load_button)
+
+        self._reset_button = QPushButton("Reset counts")
+        self._reset_button.clicked.connect(self._reset)
+        file_row.addWidget(self._reset_button)
+
+        file_row.addStretch(1)
+        layout.addLayout(file_row)
 
         body_row = QHBoxLayout()
 
@@ -151,6 +174,54 @@ class CounterScreen(QWidget):
     def _decrement(self, kruh_id: int) -> None:
         self._state.decrement_kruh(kruh_id)
         self._flash("Saved")
+
+    def _save_as(self) -> None:
+        filename, _ = QFileDialog.getSaveFileName(
+            self, "Save counts as", "counts.json", "JSON Files (*.json)"
+        )
+        if not filename:
+            return
+
+        try:
+            self._state.save_counts_as(filename)
+        except OSError as error:
+            QMessageBox.critical(self, "Save failed", f"Could not save counts to {filename}: {error}")
+        else:
+            QMessageBox.information(self, "Saved", f"Counts saved to {filename}")
+
+    def _load_from(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(self, "Load counts", "", "JSON Files (*.json)")
+        if not filename:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Load counts",
+            "This replaces all current counts with those from the selected file. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            self._state.load_counts_from(filename)
+        except (OSError, ValueError, AttributeError) as error:
+            QMessageBox.critical(self, "Load failed", f"Could not load counts from {filename}: {error}")
+        else:
+            self._flash("Loaded")
+
+    def _reset(self) -> None:
+        reply = QMessageBox.question(
+            self,
+            "Reset counts",
+            "This clears all counts back to zero and cannot be undone. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self._state.reset_counts()
+            self._flash("Reset")
 
     def _undo(self) -> None:
         entry = self._state.undo()

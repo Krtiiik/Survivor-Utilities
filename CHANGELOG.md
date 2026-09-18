@@ -12,6 +12,9 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 - Counter tab: a keyboard-entry field to record an attendee by typing their
   Kruh number and pressing Enter, an in-session history of recent increments,
   and Undo/Redo for them.
+- Counter tab: "Save counts as..." / "Load counts..." (via an OS file picker)
+  and "Reset counts", on top of the existing autosave-to-`counts.json` -- a
+  save-as or a load never repoints where autosave writes.
 
 ## [1.0.0] - 2026-09-18
 
