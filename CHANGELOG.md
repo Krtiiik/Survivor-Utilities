@@ -7,6 +7,15 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-18
+
+### Fixed
+
+- CI: the release job now explicitly requests `contents: write` permission,
+  since the default `GITHUB_TOKEN` for this repo is read-only without it --
+  `softprops/action-gh-release` was failing with a 403 on tag pushes and no
+  GitHub Release was being created.
+
 ## [1.2.0] - 2026-09-18
 
 ### Changed
@@ -91,7 +100,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   `timesheet_cli.py`) are now thin wrappers over `survivor_app/core/`, kept
   for scripting/automation.
 
-[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Krtiiik/Survivor-Utilities/releases/tag/v1.0.0
