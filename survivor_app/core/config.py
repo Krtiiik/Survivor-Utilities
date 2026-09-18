@@ -1,0 +1,202 @@
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass, field
+
+ACTIVITY_TYPES = ("all", "split", "rest")
+
+
+@dataclass
+class OborConfig:
+    name: str
+    kruhy: list[int] = field(default_factory=list)
+
+    @staticmethod
+    def from_dict(d: dict) -> "OborConfig":
+        return OborConfig(name=d["Name"], kruhy=[int(k) for k in d["Kruhy"]])
+
+    def to_dict(self) -> dict:
+        return {"Name": self.name, "Kruhy": list(self.kruhy)}
+
+
+@dataclass
+class SubteamConfig:
+    name: str
+    color: str
+
+    @staticmethod
+    def from_dict(d: dict) -> "SubteamConfig":
+        return SubteamConfig(name=d["Name"], color=d["Color"])
+
+    def to_dict(self) -> dict:
+        return {"Name": self.name, "Color": self.color}
+
+
+@dataclass
+class ActivityConfig:
+    name: str
+    type: str  # one of ACTIVITY_TYPES
+
+    @staticmethod
+    def from_dict(d: dict) -> "ActivityConfig":
+        return ActivityConfig(name=d["Name"], type=d["Type"])
+
+    def to_dict(self) -> dict:
+        return {"Name": self.name, "Type": self.type}
+
+
+@dataclass
+class TimeConfig:
+    start: str  # "HH:MM"
+    activity_duration: str  # "HH:MM"
+
+    @staticmethod
+    def from_dict(d: dict) -> "TimeConfig":
+        return TimeConfig(start=d["Start"], activity_duration=d["Activity duration"])
+
+    def to_dict(self) -> dict:
+        return {"Start": self.start, "Activity duration": self.activity_duration}
+
+
+@dataclass
+class Config:
+    teams_count: int
+    possible_teams_counts: list[int]
+    possible_teams_sizes: list[int]
+    teams_names: list[str]
+    subteams: list[SubteamConfig]
+    activities: list[ActivityConfig]
+    time: TimeConfig
+    obory: list[OborConfig]
+
+    @property
+    def subteams_count(self) -> int:
+        return len(self.subteams)
+
+    @property
+    def activities_count(self) -> int:
+        return len(self.activities)
+
+    @staticmethod
+    def from_dict(d: dict) -> "Config":
+        return Config(
+            teams_count=int(d["Teams count"]),
+            possible_teams_counts=[int(x) for x in d["Possible Teams counts"]],
+            possible_teams_sizes=[int(x) for x in d["Possible Teams sizes"]],
+            teams_names=list(d["Teams names"]),
+            subteams=[SubteamConfig.from_dict(s) for s in d["Subteams"]],
+            activities=[ActivityConfig.from_dict(a) for a in d["Activities"]],
+            time=TimeConfig.from_dict(d["Time"]),
+            obory=[OborConfig.from_dict(o) for o in d["Obory"]],
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "Teams count": self.teams_count,
+            "Possible Teams counts": list(self.possible_teams_counts),
+            "Possible Teams sizes": list(self.possible_teams_sizes),
+            "Teams names": list(self.teams_names),
+            "Subteams": [s.to_dict() for s in self.subteams],
+            "Activities": [a.to_dict() for a in self.activities],
+            "Time": self.time.to_dict(),
+            "Obory": [o.to_dict() for o in self.obory],
+        }
+
+    @staticmethod
+    def empty() -> "Config":
+        return Config(
+            teams_count=0,
+            possible_teams_counts=[],
+            possible_teams_sizes=[],
+            teams_names=[],
+            subteams=[],
+            activities=[],
+            time=TimeConfig(start="00:00", activity_duration="00:15"),
+            obory=[],
+        )
+
+
+def load_config(filename: str) -> Config:
+    with open(filename, "r", encoding="utf8") as file:
+        data = json.load(file)
+    return Config.from_dict(data)
+
+
+def save_config(config: Config, filename: str) -> None:
+    with open(filename, "w", encoding="utf8") as file:
+        json.dump(config.to_dict(), file, indent=4, ensure_ascii=False)
+
+
+def _is_hhmm(value: str) -> bool:
+    parts = value.split(":")
+    if len(parts) != 2 or not all(p.isdigit() for p in parts):
+        return False
+    hours, minutes = int(parts[0]), int(parts[1])
+    return hours >= 0 and 0 <= minutes < 60
+
+
+def validate(config: Config) -> list[str]:
+    """Return a list of human-readable problems with config, empty if it's usable."""
+    errors: list[str] = []
+
+    if not config.teams_names:
+        errors.append("Teams names must not be empty.")
+    max_possible_teams = max(config.possible_teams_counts, default=0)
+    required_names = max(config.teams_count, max_possible_teams)
+    if len(config.teams_names) < required_names:
+        errors.append(
+            f"Teams names must contain at least {required_names} names "
+            f"(the larger of Teams count and the max of Possible Teams counts), "
+            f"found {len(config.teams_names)}."
+        )
+
+    if not config.possible_teams_counts:
+        errors.append("Possible Teams counts must not be empty.")
+    if any(n <= 0 for n in config.possible_teams_counts):
+        errors.append("Possible Teams counts must all be positive.")
+
+    if not config.possible_teams_sizes:
+        errors.append("Possible Teams sizes must not be empty.")
+    if any(n <= 0 for n in config.possible_teams_sizes):
+        errors.append("Possible Teams sizes must all be positive.")
+
+    if not config.subteams:
+        errors.append("At least one Subteam must be defined.")
+    subteam_names = [s.name for s in config.subteams]
+    if len(subteam_names) != len(set(subteam_names)):
+        errors.append("Subteam names must be unique.")
+
+    if not config.activities:
+        errors.append("At least one Activity must be defined.")
+    for activity in config.activities:
+        if activity.type not in ACTIVITY_TYPES:
+            errors.append(
+                f"Activity '{activity.name}' has unrecognized Type '{activity.type}' "
+                f"(must be one of {', '.join(ACTIVITY_TYPES)})."
+            )
+
+    if not _is_hhmm(config.time.start):
+        errors.append(f"Time.Start must be in HH:MM format, got '{config.time.start}'.")
+    if not _is_hhmm(config.time.activity_duration):
+        errors.append(
+            f"Time.Activity duration must be in HH:MM format, got '{config.time.activity_duration}'."
+        )
+
+    if not config.obory:
+        errors.append("At least one Obor must be defined.")
+    seen_kruhy: dict[int, str] = {}
+    obor_names = [o.name for o in config.obory]
+    if len(obor_names) != len(set(obor_names)):
+        errors.append("Obor names must be unique.")
+    for obor in config.obory:
+        if not obor.name:
+            errors.append("An Obor is missing a name.")
+        for kruh_id in obor.kruhy:
+            if kruh_id in seen_kruhy:
+                errors.append(
+                    f"Kruh {kruh_id} is assigned to both Obor '{seen_kruhy[kruh_id]}' and '{obor.name}'."
+                )
+            else:
+                seen_kruhy[kruh_id] = obor.name
+
+    return errors

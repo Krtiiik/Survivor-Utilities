@@ -1,137 +1,125 @@
 # Survivor utilities
 
-## Installing
+A desktop app for running a Kruh-based team-building event ("Survivor"): headcount
+counting, team/subteam distribution, and timetable generation, all in one place.
 
-All utilities require Python to run.
-Required packages are listed in `requirements.txt` and can by installed using
+> Specific words -- such as *Kruhy* or *Obory* -- are not translated. It may prove
+> difficult to read such a combination of languages... for that I apologize.
+
+## Running the app
+
+### Option A: download a prebuilt executable
+
+Every push to `main` and every tagged release builds a self-contained Windows
+and Linux executable (see `.github/workflows/build.yml`). Tagged releases
+(`vX.Y.Z`) publish both to the repository's **Releases** page -- download the
+one for your OS and double-click it. No Python installation needed.
+
+### Option B: run from source
+
+Requires Python 3.11+.
 
 ```
 python -m pip install -r requirements.txt
+python app.py
 ```
 
-preferably into a virtual environment.
+preferably from within a virtual environment.
 
-## Attendance counter (`counter.py`)
+On first launch, the app looks for `config.json`/`counts.json` next to itself
+(next to the `.exe` when using a prebuilt binary, or next to `app.py` when
+running from source) and seeds a starting `config.json` from the bundled
+example if none exists.
 
-Script used to count attendance of "Kruhy" students.
-Run using
+## The app
 
-```
-python counter.py [FILE]
-```
+The app has four tabs, usable in any order (not a strict wizard, since the real
+workflow often isn't linear -- you might recount mid-event, or regenerate the
+timesheet without re-running the solver):
 
-The script runs interactively, asking for a new group number.
-It keeps count of each entered number.
-The total count of all group counts is shown in an self-updating table.
-A history of recent increments is shown under the table.
-To undo previous count increments, type `-` instead of a number.
+1. **Counter** -- click `+`/`-` next to each Kruh (grouped by Obor) to record
+   attendance as people arrive. Counts autosave to `counts.json` after every
+   click.
+2. **Distribution** -- runs a solver that assigns Kruhy into Teams and
+   Subteams (see "Team distribution algorithm" below), lets you pick from the
+   resulting candidates, then drag Kruhy between Teams/Subteams directly in the
+   app to fine-tune the result (Subteam sizes recalculate live). Export writes
+   a static `.xlsx` -- unlike the old workflow, there's nothing fragile about
+   editing it afterwards.
+3. **Timesheet** -- previews the event timetable (which Team/Subteam is doing
+   which Activity, when) and exports it to `.xlsx` for printing.
+4. **Config** -- edit Obory, Teams, Subteams, Activities, event timing, and the
+   solver's search space, without ever hand-editing `config.json`.
 
-The script automatically saves the counts into a JSON `FILE` (default `counts.json`).
-The script can be exited using the `Ctrl+C` combination.
-Upon running the script with an existing `FILE`, the existing group counts are loaded
-and are incremented upon.
+The Distribution and Timesheet tabs are disabled whenever the Config is
+invalid; fix it on the Config tab first.
 
-## Timesheet builder (`timesheet.py`)
+### Team distribution algorithm
 
-Script used to build an Excel timesheet for the event, describing which team should be at which activity at which time.
-Run using
+For each combination of values from "Possible Teams counts" and "Possible
+Teams sizes" (edited on the Config tab), the solver builds a constraint model
+and tries to assign the Kruhy into Teams and Subteams, minimizing multiple
+objectives, in order:
 
-```
-python timesheet.py [--config CONFIG] [--output OUTPUT]
-```
+- Number of Teams used.
+- Number of different Obory within a single Team.
 
-where
+Every combination that finds a feasible or optimal solution shows up as a
+candidate you can select and then edit.
 
-- `CONFIG` holds data about the teams, activities and time settings.
-  Default `config.json`.
-- `OUTPUT` is the output `.xlsx` Excel file to write to. If this file exists, it is overwritten.
-  Default `timesheet.xlsx`.
+## Command-line scripts
 
-### Configuration
-
-The configuration is a JSON file, specifying important data about the event.
-The following keys need to be present:
-
-- `"Teams count"` (`int`) - number of teams to use.
-- `"Teams names"` (`list[string]`) - names of teams.
-  Must contain at least as many names as given by `"Teams count"`.
-- `"Subteams count"` (`int`) - number of sub-teams per team.
-- `"Subteams"` (`list[object]`) - definitions of sub-teams.
-  Must contain as many definitions as given by `"Subteams count"`.
-  Each is an object with
-  - `"Name"` (`str`) - name of the sub-team.
-  - `"Color"` (`str`) - background color for the sub-team in split activities.
-    Can be an HTML color code (`#rrggbb`) or a simple color name (e.g. `red` or `blue`).
-- `"Activities count"` (`int`) - number of activities.
-- `"Activities"` (`list[object]`) - definitions of activities.
-  Must contain as many definitions as given by `"Activities count"`.
-  Each is an object with
-  - `"Name"` (`str`) - name of the activity.
-  - `"Type"` (`str`) - activity type.
-    One of `all`, `split` or `rest`.
-- `"Time"` (`object`) - definitions of time constants.
-  Contains
-  - `"Start"` (`str`) - start of the event in `hh:mm` format.
-  - `"Activity duration"` (`str`) - duration of activities in `hh:mm` format.
-
-### Excel output
-
-The resulting timesheet (stored in `OUTPUT`) can then be "printed" (exported) to a pdf file for printing.
-Any changes made to the resulting timesheet file are overwritten with each script run.
-
-## Team distribution and assignment (`distribute.py`)
-
-> Specific words - such as *Kruhy* or *Obory* - are not translated.
-> It may prove difficult to read such a combination of languages... for that I apologize.
-
-Script used to distribute and assign people from Kruhy (study groups) into Teams and Subteams.
-Each Team has the same number of Subteams.
-Each Subteam consists of people from some Kruhy.
-Run using:
+The GUI's logic lives in `survivor_app/core/` (no GUI dependency), reused by
+three thin CLI wrappers for scripting/automation:
 
 ```
-python distribute.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]
+python counter_cli.py [FILE]
+python distribute_cli.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]
+python timesheet_cli.py [--config CONFIG] [--output OUTPUT]
 ```
 
-where
+These mirror the original standalone scripts' interfaces and defaults
+(`config.json`, `counts.json`, `distributions.xlsx`/`timesheet.xlsx`).
 
-- `CONFIG` holds data about teams and subteams, their sizes and other information.
-  Default `config.json`.
-- `COUNTS` contains sizes of Kruhy.
-  Default `counts.json`.
-- `OUTPUT` is an output `.xlsx` Excel file to write to.
-  If this file exists, it is overwritten.
-  Default `distributions.xlsx`.
+## Configuration
 
-### Configuration
+`config.json` is a single file read by all three parts of the app/CLI. Edit it
+through the app's Config tab, or by hand using the schema below.
 
-The configuration is a JSON file, specifying important data about the event.
-The following keys need to be present:
+- `"Teams count"` (`int`) -- number of Teams to render on the Timesheet.
+- `"Possible Teams counts"` (`list[int]`) -- candidate Team counts for the
+  Distribution solver to try.
+- `"Possible Teams sizes"` (`list[int]`) -- candidate max Subteam sizes for the
+  solver to try.
+- `"Teams names"` (`list[string]`) -- names of Teams. Must contain at least as
+  many names as the larger of `"Teams count"` and the maximum of
+  `"Possible Teams counts"`.
+- `"Subteams"` (`list[object]`) -- one entry per Subteam:
+  - `"Name"` (`str`)
+  - `"Color"` (`str`) -- background color for the Subteam in split Activities,
+    as `#rrggbb`.
+- `"Activities"` (`list[object]`) -- one entry per Activity, in schedule order:
+  - `"Name"` (`str`)
+  - `"Type"` (`str`) -- one of `all`, `split`, or `rest`.
+- `"Time"` (`object`):
+  - `"Start"` (`str`) -- event start, `HH:MM`.
+  - `"Activity duration"` (`str`) -- length of each Activity block, `HH:MM`.
+- `"Obory"` (`list[object]`) -- one entry per Obor:
+  - `"Name"` (`str`)
+  - `"Kruhy"` (`list[int]`) -- Kruh ids belonging to this Obor.
 
-- `"Possible Teams counts"` (`list[int]`) - possible maximum counts of Teams.
-- `"Possible Teams sizes"` (`list[int]`) - possible sizes of Subteams.
-- `"Teams names"` (`list[string]`) - names of teams.
-  Must contain at least as many names as given by any of the values in `"Possible Teams counts"`.
-- `"Subteams count"` (`int`) - number of Subteams per team.
-- `"Obory"` (`object`) - definitions of Obory.
-  Contains
-  - `"Name"` (`str`) - name of the Obor
-  - `"Kruhy"` (`list[int]`) - Kruhy in the Obor
+Number of Subteams/Activities is simply the length of the `"Subteams"`/
+`"Activities"` lists -- there's no separate count field to keep in sync.
 
-### Algorithm
+## Development
 
-For each combination of values from `Possible Team counts` and `Possible Team sizes` the script build a model and tries to assign the Kruhy in Teams and Subteams, minimizing multiple objectives:
+```
+python -m pip install -r requirements.txt
+python -m pip install pyinstaller pytest  # dev extras
+python tests/test_core.py                 # headless core logic tests
+python app.py                             # run the app
+pyinstaller survivor.spec                 # build a standalone executable locally
+```
 
-- Number of Teams
-- Number of different Obory in a single Team
-
-If successful (feasible or optimal solution has been found) the script saves the resulting distribution.
-
-### Excel output
-
-The resulting Excel workbook contains for each resulting distribution two worksheets - definition of Kruhy and the Teams distribution.
-The resulting distribution can be further rearranged.
-Because of some inner workings of the `xlsxwriter` library and Excel itself the names of Kruhy can not be recognized as strings but are interpreted as numbers.
-For this, it is **crucial not to edit** (editing the cell and confirming with `Enter`, for example) the individual cells.
-To rearrange the assignments, the cells must be **cut** [`Ctrl+X`] and **pasted** [`Ctrl+V`].
-This automatically recomputes the Subteam sizes.
+`survivor_app/core/` has no GUI dependency and can be tested without a display.
+`survivor_app/ui/` holds the PySide6 screens.

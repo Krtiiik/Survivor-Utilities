@@ -1,3 +1,4 @@
-tabulate
-xlsxwriter
-ortools
+PySide6>=6.7,<7
+ortools>=9.10,<10
+xlsxwriter>=3.2,<4
+tabulate>=0.9,<1

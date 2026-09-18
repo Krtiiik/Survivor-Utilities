@@ -1,0 +1,73 @@
+"""Headless-ish smoke test: builds the MainWindow, exercises the four tabs against
+the bundled example config, and quits automatically. Not a full UI test suite,
+but catches import errors, constructor crashes, and basic wiring problems that
+py_compile can't."""
+import os
+import sys
+import tempfile
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication
+
+from survivor_app.ui import paths as ui_paths
+
+# Run against an isolated scratch directory so this test never writes
+# config.json/counts.json into the real repository root.
+_scratch_dir = tempfile.mkdtemp(prefix="survivor_gui_smoke_")
+ui_paths.app_dir = lambda: _scratch_dir
+
+from survivor_app.ui.main_window import MainWindow
+
+
+def run():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+
+    errors = []
+
+    def exercise():
+        try:
+            for i in range(window._tabs.count()):
+                window._tabs.setCurrentIndex(i)
+                app.processEvents()
+
+            counter_tab = window._tabs.widget(0)
+            if counter_tab._count_labels:
+                any_kruh_id = next(iter(counter_tab._count_labels))
+                counter_tab._increment(any_kruh_id)
+                app.processEvents()
+                assert window.state.counts[any_kruh_id] >= 1
+                counter_tab._decrement(any_kruh_id)
+                app.processEvents()
+
+            config_tab = window._tabs.widget(3)
+            config_tab._reload()
+            built = config_tab._build_config()
+            assert built.obory, "Config editor should round-trip the example Obory"
+
+            timesheet_tab = window._tabs.widget(2)
+            timesheet_tab.refresh()
+            assert timesheet_tab._preview.rowCount() > 0
+
+            print("GUI smoke test passed.")
+        except Exception as exc:  # noqa: BLE001
+            errors.append(exc)
+            import traceback
+            traceback.print_exc()
+        finally:
+            app.quit()
+
+    QTimer.singleShot(200, exercise)
+    app.exec()
+
+    if errors:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    run()
