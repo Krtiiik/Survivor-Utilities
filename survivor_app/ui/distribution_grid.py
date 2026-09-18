@@ -5,7 +5,7 @@ from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import QAbstractItemView, QTreeWidget, QTreeWidgetItem
 
 from ..core.config import Config
-from ..core.excel_export import generate_obor_colors
+from ..core.excel_export import obor_color_map
 from ..core.models import Kruh, T_Distribution, format_kruh_label
 
 KRUH_ID_ROLE = Qt.ItemDataRole.UserRole
@@ -47,8 +47,7 @@ class DistributionGrid(QTreeWidget):
         self._kruh_lookup = {}
         self.clear()
 
-        all_kruhy = [kruh for team in distribution for subteam in team for kruh in subteam]
-        obor_colors = generate_obor_colors([kruh.obor for kruh in all_kruhy])
+        obor_colors = obor_color_map(config)
 
         for i_team, team in enumerate(distribution):
             team_name = (

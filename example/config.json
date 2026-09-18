@@ -85,27 +85,33 @@
     "Obory": [
         {
             "Name": "Fyzika",
-            "Kruhy": [11, 12, 13, 14, 15, 16, 17, 18]
+            "Kruhy": [11, 12, 13, 14, 15, 16, 17, 18],
+            "Color": "#37c4e5"
         },
         {
             "Name": "Matematické Modelování",
-            "Kruhy": [19, 20]
+            "Kruhy": [19, 20],
+            "Color": "#f08baa"
         },
         {
             "Name": "Informatika",
-            "Kruhy": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]
+            "Kruhy": [31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41],
+            "Color": "#8ac75a"
         },
         {
             "Name": "Obecná Matematika, MIT",
-            "Kruhy": [51, 52, 53, 54, 55, 56, 57, 58]
+            "Kruhy": [51, 52, 53, 54, 55, 56, 57, 58],
+            "Color": "#f08baa"
         },
         {
             "Name": "Finanční Matematika",
-            "Kruhy": [61, 62, 63, 64]
+            "Kruhy": [61, 62, 63, 64],
+            "Color": "#f08baa"
         },
         {
             "Name": "Učitelství",
-            "Kruhy": [70, 71, 72, 73, 74, 75]
+            "Kruhy": [70, 71, 72, 73, 74, 75],
+            "Color": "#f5bf69"
         }
     ]
 }

@@ -90,6 +90,9 @@ def run():
             config_tab._reload()
             built = config_tab._build_config()
             assert built.obory, "Config editor should round-trip the example Obory"
+            original_colors = {o.name: o.color for o in window.state.config.obory}
+            built_colors = {o.name: o.color for o in built.obory}
+            assert built_colors == original_colors, "Obor colors must round-trip through the editor"
 
             timesheet_tab = window._tabs.widget(2)
             timesheet_tab.refresh()

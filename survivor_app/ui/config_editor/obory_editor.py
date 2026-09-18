@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...core.config import OborConfig
+from ..widgets.color_picker import ColorPickerButton
 from ..widgets.kruh_id_list_editor import KruhIdListEditor
 
 
@@ -19,8 +20,8 @@ class OboryEditor(QWidget):
         super().__init__()
         layout = QVBoxLayout(self)
 
-        self._table = QTableWidget(0, 2)
-        self._table.setHorizontalHeaderLabels(["Obor name", "Kruh ids (comma-separated)"])
+        self._table = QTableWidget(0, 3)
+        self._table.setHorizontalHeaderLabels(["Obor name", "Color", "Kruh ids (comma-separated)"])
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         layout.addWidget(self._table)
@@ -39,7 +40,8 @@ class OboryEditor(QWidget):
         row = self._table.rowCount()
         self._table.insertRow(row)
         self._table.setItem(row, 0, QTableWidgetItem(""))
-        self._table.setCellWidget(row, 1, KruhIdListEditor([]))
+        self._table.setCellWidget(row, 1, ColorPickerButton("#ffffff"))
+        self._table.setCellWidget(row, 2, KruhIdListEditor([]))
 
     def _remove_selected(self) -> None:
         for index in sorted({item.row() for item in self._table.selectedItems()}, reverse=True):
@@ -51,15 +53,18 @@ class OboryEditor(QWidget):
             row = self._table.rowCount()
             self._table.insertRow(row)
             self._table.setItem(row, 0, QTableWidgetItem(obor.name))
-            self._table.setCellWidget(row, 1, KruhIdListEditor(obor.kruhy))
+            self._table.setCellWidget(row, 1, ColorPickerButton(obor.color))
+            self._table.setCellWidget(row, 2, KruhIdListEditor(obor.kruhy))
 
     def get_obory(self) -> list[OborConfig]:
         obory = []
         for row in range(self._table.rowCount()):
             name_item = self._table.item(row, 0)
-            editor = self._table.cellWidget(row, 1)
+            color_widget = self._table.cellWidget(row, 1)
+            editor = self._table.cellWidget(row, 2)
             name = name_item.text().strip() if name_item else ""
+            color = color_widget.color() if isinstance(color_widget, ColorPickerButton) else "#ffffff"
             kruhy = editor.kruh_ids() if isinstance(editor, KruhIdListEditor) else []
             if name or kruhy:
-                obory.append(OborConfig(name=name, kruhy=kruhy))
+                obory.append(OborConfig(name=name, kruhy=kruhy, color=color))
         return obory

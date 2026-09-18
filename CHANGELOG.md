@@ -17,6 +17,13 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   right-aligned numbers, and a snug (non-stretched) width, instead of
   butting up against the Team/Subteam/Kruh labels with no clear boundary.
 
+### Changed
+
+- Obor colors (in the Distribution grid and the exported workbook) are now a
+  manually assigned `"Color"` field per Obor in `config.json`, editable on the
+  Config tab's Obory editor, instead of being derived from a fixed cycling
+  palette. Several Obory can share a color, e.g. every Matematika variant.
+
 ### Added
 
 - Counter tab: a keyboard-entry field to record an attendee by typing their

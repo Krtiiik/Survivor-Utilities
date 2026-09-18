@@ -4,9 +4,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from survivor_app.core.config import Config, load_config, validate
+from survivor_app.core.config import Config, OborConfig, load_config, validate
 from survivor_app.core.counts import decrement, increment, load_counts, summarize
 from survivor_app.core.distribute import compute_distributions, compute_kruhy_split
+from survivor_app.core.excel_export import obor_color_map
 from survivor_app.core.history import CountHistory
 from survivor_app.core.models import Kruh, SolutionStatus, format_kruh_label
 from survivor_app.core.timesheet import compute_timetable_layout
@@ -80,6 +81,24 @@ def test_count_history_undo_redo():
     empty_history = CountHistory()
     assert empty_history.undo(counts) is None
     assert empty_history.redo(counts) is None
+
+
+def test_obor_colors_come_from_config_not_a_fixed_palette():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+    colors = obor_color_map(config)
+
+    # Each Obor's color is whatever was set on it in config.json -- several
+    # (the Matematika variants) intentionally share one color.
+    assert colors["Fyzika"] == "#37c4e5"
+    assert colors["Informatika"] == "#8ac75a"
+    assert colors["Učitelství"] == "#f5bf69"
+    assert colors["Matematické Modelování"] == "#f08baa"
+    assert colors["Obecná Matematika, MIT"] == "#f08baa"
+    assert colors["Finanční Matematika"] == "#f08baa"
+
+    # A config saved before "Color" existed loads with a default instead of failing.
+    legacy_obor = OborConfig.from_dict({"Name": "Fyzika", "Kruhy": [11]})
+    assert legacy_obor.color == "#ffffff"
 
 
 def test_format_kruh_label_handles_splits():

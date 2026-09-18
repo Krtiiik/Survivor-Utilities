@@ -9,19 +9,13 @@ from .errors import FileWriteError
 from .models import T_Distribution, format_kruh_label
 from .timesheet import TimetableLayout
 
-# Deterministic, cycling palette used to color Obory -- replaces the old hardcoded
-# 6-entry dict keyed off a fixed Obor enum, so any number of config-driven Obor
-# names get a distinct (until the palette wraps) color, shared by the in-app grid
-# and the .xlsx export.
-OBOR_PALETTE = [
-    "#37c4e5", "#8ac75a", "#f5bf69", "#f08baa", "#b39ddb", "#ffab91",
-    "#80cbc4", "#ce93d8", "#a5d6a7", "#ffe082", "#90caf9", "#ef9a9a",
-]
 
-
-def generate_obor_colors(obor_names: list[str]) -> dict[str, str]:
-    ordered = sorted(set(obor_names))
-    return {name: OBOR_PALETTE[i % len(OBOR_PALETTE)] for i, name in enumerate(ordered)}
+def obor_color_map(config: Config) -> dict[str, str]:
+    """Per-Obor colors as set on the Config tab -- manually assigned rather than
+    derived from a fixed palette, so e.g. every Matematika-variant Obor can share
+    one color while Fyzika/Informatika/Ucitelstvi each keep their own. Shared by
+    the in-app Distribution grid and the .xlsx export."""
+    return {obor.name: obor.color for obor in config.obory}
 
 
 # ---------------------------------------------------------------------------
@@ -40,8 +34,7 @@ def export_distribution(
     in-memory -- there are no more live XLOOKUP formulas, so the workbook can be
     freely edited afterwards without any cut-and-paste caveat.
     """
-    obor_names = [kruh.obor for team in distribution for subteam in team for kruh in subteam]
-    obor_colors = generate_obor_colors(obor_names)
+    obor_colors = obor_color_map(config)
 
     workbook = xlsxwriter.Workbook(filename)
     try:

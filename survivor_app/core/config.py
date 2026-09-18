@@ -10,13 +10,20 @@ ACTIVITY_TYPES = ("all", "split", "rest")
 class OborConfig:
     name: str
     kruhy: list[int] = field(default_factory=list)
+    color: str = "#ffffff"
 
     @staticmethod
     def from_dict(d: dict) -> "OborConfig":
-        return OborConfig(name=d["Name"], kruhy=[int(k) for k in d["Kruhy"]])
+        return OborConfig(
+            name=d["Name"],
+            kruhy=[int(k) for k in d["Kruhy"]],
+            # "Color" is a newer field -- default to white for configs saved before
+            # it existed, rather than failing to load them.
+            color=d.get("Color", "#ffffff"),
+        )
 
     def to_dict(self) -> dict:
-        return {"Name": self.name, "Kruhy": list(self.kruhy)}
+        return {"Name": self.name, "Kruhy": list(self.kruhy), "Color": self.color}
 
 
 @dataclass

@@ -114,6 +114,10 @@ through the app's Config tab, or by hand using the schema below.
 - `"Obory"` (`list[object]`) -- one entry per Obor:
   - `"Name"` (`str`)
   - `"Kruhy"` (`list[int]`) -- Kruh ids belonging to this Obor.
+  - `"Color"` (`str`) -- background color for this Obor's Kruhy in the
+    Distribution grid and exported workbook, as `#rrggbb`. Several Obory can
+    share the same color (e.g. multiple Matematika variants); defaults to
+    white if omitted (configs saved before this field existed).
 
 Number of Subteams/Activities is simply the length of the `"Subteams"`/
 `"Activities"` lists -- there's no separate count field to keep in sync.
