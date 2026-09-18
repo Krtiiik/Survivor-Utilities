@@ -32,6 +32,11 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 - Counter tab: "Save counts as..." / "Load counts..." (via an OS file picker)
   and "Reset counts", on top of the existing autosave-to-`counts.json` -- a
   save-as or a load never repoints where autosave writes.
+- Distribution tab: every solver run now auto-saves all of its computed
+  Solutions (not just the selected one) to `distributions.json`, since a solve
+  can be expensive to redo. This file is deliberately *not* loaded on startup;
+  a new "Load saved distributions..." button (via an OS file picker) restores
+  a previous run's candidates on demand instead.
 
 ## [1.0.0] - 2026-09-18
 

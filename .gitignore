@@ -9,6 +9,7 @@ dist/
 # Per-event data and generated output, not source
 config.json
 counts.json
+distributions.json
 distributions.xlsx
 timesheet.xlsx
 

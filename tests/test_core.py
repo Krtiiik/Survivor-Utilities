@@ -1,6 +1,7 @@
 """Headless tests for survivor_app.core -- no PySide6/display required."""
 import os
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -9,7 +10,8 @@ from survivor_app.core.counts import decrement, increment, load_counts, summariz
 from survivor_app.core.distribute import compute_distributions, compute_kruhy_split
 from survivor_app.core.excel_export import obor_color_map
 from survivor_app.core.history import CountHistory
-from survivor_app.core.models import Kruh, SolutionStatus, format_kruh_label
+from survivor_app.core.models import Kruh, Solution, SolutionStatus, format_kruh_label
+from survivor_app.core.solutions import load_solutions, save_solutions
 from survivor_app.core.timesheet import compute_timetable_layout
 
 EXAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "example")
@@ -99,6 +101,32 @@ def test_obor_colors_come_from_config_not_a_fixed_palette():
     # A config saved before "Color" existed loads with a default instead of failing.
     legacy_obor = OborConfig.from_dict({"Name": "Fyzika", "Kruhy": [11]})
     assert legacy_obor.color == "#ffffff"
+
+
+def test_save_and_load_solutions_round_trips():
+    # Every computed Solution (not just the one the user eventually picks) must
+    # survive a save/load round trip byte-for-byte -- this is the only copy of an
+    # expensive solver run once the app closes.
+    solutions = [
+        Solution(
+            num_teams=2,
+            max_subteam_size=6,
+            status=SolutionStatus.OPTIMAL,
+            distribution=[
+                [[Kruh(11, 4, "Fyzika")], [Kruh(12, 4, "Fyzika")]],
+                [[Kruh(21, 4, "Informatika")], []],
+            ],
+            time=1.23,
+        ),
+        Solution(num_teams=2, max_subteam_size=7, status=SolutionStatus.INFEASIBLE, distribution=[], time=None),
+    ]
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        path = os.path.join(tmp_dir, "distributions.json")
+        save_solutions(solutions, path)
+        loaded = load_solutions(path)
+
+    assert loaded == solutions
 
 
 def test_format_kruh_label_handles_splits():

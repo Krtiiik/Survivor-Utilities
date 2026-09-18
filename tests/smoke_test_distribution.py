@@ -67,6 +67,25 @@ def run():
             assigned_ids = {kruh.id for team in extracted for subteam in team for kruh in subteam}
             assert assigned_ids == {11, 12, 21}, f"Unexpected assigned ids: {assigned_ids}"
 
+            # Computing is expensive, so every Solution should auto-save to disk --
+            # verify that, then verify loading it back (skipping the OS file picker,
+            # which would block waiting for input here) restores the same results.
+            distributions_path = window.state.distributions_path
+            assert os.path.exists(distributions_path), "Solutions should auto-save after computing"
+            saved_result_count = distribution_tab._results_list.count()
+
+            distribution_tab._results_list.clear()
+            distribution_tab._grid.clear()
+            window.state.load_solutions_from(distributions_path)
+            distribution_tab._populate_results(window.state.solutions)
+            assert distribution_tab._results_list.count() == saved_result_count, (
+                "Loading saved distributions should restore the same feasible results"
+            )
+
+            distribution_tab._results_list.setCurrentRow(0)
+            app.processEvents()
+            assert grid.topLevelItemCount() == 2, "Grid should reload fine from loaded distributions"
+
             export_path = os.path.join(_scratch_dir, "distributions.xlsx")
             from survivor_app.core.excel_export import export_distribution
 

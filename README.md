@@ -52,7 +52,11 @@ timesheet without re-running the solver):
    resulting candidates, then drag Kruhy between Teams/Subteams directly in the
    app to fine-tune the result (Subteam sizes recalculate live). Export writes
    a static `.xlsx` -- unlike the old workflow, there's nothing fragile about
-   editing it afterwards.
+   editing it afterwards. Every solver run (the computation can take a while)
+   auto-saves all of its candidates -- feasible or not -- to `distributions.json`,
+   which is *not* reloaded automatically on the next launch; use "Load saved
+   distributions..." to bring an earlier run's candidates back without having
+   to recompute them.
 3. **Timesheet** -- previews the event timetable (which Team/Subteam is doing
    which Activity, when) and exports it to `.xlsx` for printing.
 4. **Config** -- edit Obory, Teams, Subteams, Activities, event timing, and the

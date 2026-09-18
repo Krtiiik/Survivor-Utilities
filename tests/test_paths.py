@@ -23,6 +23,8 @@ def test_config_and_counts_paths_are_next_to_app_dir():
     assert os.path.basename(paths.config_path()) == "config.json"
     assert os.path.dirname(paths.counts_path()) == paths.app_dir()
     assert os.path.basename(paths.counts_path()) == "counts.json"
+    assert os.path.dirname(paths.distributions_path()) == paths.app_dir()
+    assert os.path.basename(paths.distributions_path()) == "distributions.json"
 
 
 def test_bundled_example_config_exists():

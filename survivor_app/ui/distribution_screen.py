@@ -48,6 +48,10 @@ class DistributionScreen(QWidget):
         self._cancel_button.clicked.connect(self._cancel_run)
         controls.addWidget(self._cancel_button)
 
+        self._load_button = QPushButton("Load saved distributions...")
+        self._load_button.clicked.connect(self._load_saved)
+        controls.addWidget(self._load_button)
+
         self._export_button = QPushButton("Export to .xlsx...")
         self._export_button.setEnabled(False)
         self._export_button.clicked.connect(self._export)
@@ -123,6 +127,7 @@ class DistributionScreen(QWidget):
         self._worker.error.connect(self._thread.quit)
 
         self._run_button.setEnabled(False)
+        self._load_button.setEnabled(False)
         self._cancel_button.setEnabled(True)
         self._thread.start()
 
@@ -144,8 +149,27 @@ class DistributionScreen(QWidget):
 
     def _on_finished(self, solutions: list[Solution]) -> None:
         self._run_button.setEnabled(True)
+        self._load_button.setEnabled(True)
         self._cancel_button.setEnabled(False)
-        self._state.set_solutions(solutions)
+
+        try:
+            self._state.set_solutions(solutions)
+        except OSError as error:
+            QMessageBox.warning(
+                self,
+                "Could not save distributions",
+                f"The computed distributions could not be saved to disk: {error}\n"
+                "They are still available for this session, but re-running the "
+                "solver later won't be avoidable if the app is closed first.",
+            )
+
+        self._populate_results(solutions)
+
+    def _populate_results(self, solutions: list[Solution]) -> None:
+        self._results_list.clear()
+        self._grid.clear()
+        self._export_button.setEnabled(False)
+        self._banner.setText("")
 
         for solution in solutions:
             if solution.status not in (SolutionStatus.FEASIBLE, SolutionStatus.OPTIMAL):
@@ -163,8 +187,28 @@ class DistributionScreen(QWidget):
 
     def _on_error(self, message: str) -> None:
         self._run_button.setEnabled(True)
+        self._load_button.setEnabled(True)
         self._cancel_button.setEnabled(False)
         QMessageBox.critical(self, "Solver error", message)
+
+    def _load_saved(self) -> None:
+        filename, _ = QFileDialog.getOpenFileName(
+            self, "Load saved distributions", self._state.distributions_path, "JSON Files (*.json)"
+        )
+        if not filename:
+            return
+
+        try:
+            self._state.load_solutions_from(filename)
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            QMessageBox.critical(
+                self, "Load failed", f"Could not load distributions from {filename}: {error}"
+            )
+            return
+
+        self._log.clear()
+        self._progress_bar.setValue(0)
+        self._populate_results(self._state.solutions)
 
     def _on_result_selected(self) -> None:
         items = self._results_list.selectedItems()

@@ -26,5 +26,9 @@ def counts_path() -> str:
     return os.path.join(app_dir(), "counts.json")
 
 
+def distributions_path() -> str:
+    return os.path.join(app_dir(), "distributions.json")
+
+
 def bundled_example_config_path() -> str:
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "resources", "example_config.json")
