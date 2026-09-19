@@ -7,13 +7,15 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-09-20
+
 ### Changed
 
-- **Breaking:** the CLI scripts moved into a `cli/` directory:
-  `counter_cli.py` -> `cli/counter_cli.py`, `distribute_cli.py` ->
-  `cli/distribute_cli.py`, `timesheet_cli.py` -> `cli/timesheet_cli.py`.
-  Invoke them as e.g. `python cli/counter_cli.py` instead of
-  `python counter_cli.py`; arguments and defaults are unchanged.
+- The CLI scripts moved into a `cli/` directory: `counter_cli.py` ->
+  `cli/counter_cli.py`, `distribute_cli.py` -> `cli/distribute_cli.py`,
+  `timesheet_cli.py` -> `cli/timesheet_cli.py`. Invoke them as e.g.
+  `python cli/counter_cli.py` instead of `python counter_cli.py`; arguments
+  and defaults are unchanged.
 
 ### Added
 
@@ -123,7 +125,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   `timesheet_cli.py`) are now thin wrappers over `survivor_app/core/`, kept
   for scripting/automation.
 
-[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.0.0...v1.1.0
