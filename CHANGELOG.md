@@ -7,6 +7,12 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `docs/manual.md`: a Czech, non-technical, step-by-step user manual covering
+  installation and every tab (Counter, Distribution, Timesheet, Config),
+  linked from the README.
+
 ## [1.3.0] - 2026-09-18
 
 ### Fixed

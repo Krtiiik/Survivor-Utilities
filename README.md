@@ -6,6 +6,9 @@ counting, team/subteam distribution, and timetable generation, all in one place.
 > Specific words -- such as *Kruhy* or *Obory* -- are not translated. It may prove
 > difficult to read such a combination of languages... for that I apologize.
 
+For a non-technical, step-by-step walkthrough of the app in Czech (aimed at
+whoever actually runs the event), see [`docs/manual.md`](docs/manual.md).
+
 ## Running the app
 
 ### Option A: download a prebuilt executable
