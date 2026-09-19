@@ -1,6 +1,9 @@
 """CLI wrapper for the distribution solver, backed by survivor_app.core."""
 import argparse
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from survivor_app.core.config import load_config
 from survivor_app.core.counts import load_counts

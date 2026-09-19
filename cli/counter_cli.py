@@ -3,6 +3,10 @@ by survivor_app.core.counts so the same increment/decrement/save logic is shared
 with the GUI's Counter screen."""
 import argparse
 import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from survivor_app.core.counts import decrement, increment, load_counts, save_counts, summarize
 

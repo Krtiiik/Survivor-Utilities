@@ -11,9 +11,9 @@ A PySide6 desktop app for running a Kruh-based team-building event ("Survivor"):
 ```
 python -m pip install -r requirements.txt
 python app.py                                                    # the GUI app
-python counter_cli.py [FILE]                                     # default FILE = counts.json
-python distribute_cli.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]  # defaults: config.json, counts.json, distributions.xlsx
-python timesheet_cli.py [--config CONFIG] [--output OUTPUT]      # defaults: config.json, timesheet.xlsx
+python cli/counter_cli.py [FILE]                                     # default FILE = counts.json
+python cli/distribute_cli.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]  # defaults: config.json, counts.json, distributions.xlsx
+python cli/timesheet_cli.py [--config CONFIG] [--output OUTPUT]      # defaults: config.json, timesheet.xlsx
 ```
 
 `tests/test_core.py` and `tests/test_paths.py` are headless (no Qt/display) tests over `survivor_app/core/` and `survivor_app/ui/paths.py`; run them directly, e.g. `python tests/test_core.py`. `tests/smoke_test_gui.py` and `tests/smoke_test_distribution.py` exercise the PySide6 layer (including the threaded solver run) with `QT_QPA_PLATFORM=offscreen`, useful when there's no display attached -- but note they monkeypatch `paths.app_dir()` to an isolated scratch directory, so they won't catch bugs in the real path-resolution logic itself (that's what `test_paths.py` is for; a real `app_dir()` bug once slipped past both offscreen smoke tests for exactly this reason). There is no linter configured.
@@ -32,7 +32,7 @@ Czech terms are used as-is (not translated) throughout code, config, and output 
 
 - `survivor_app/core/` — all business logic, **zero PySide6 imports**, testable headless. `config.py` (schema + validation), `counts.py` (headcount load/save/increment/decrement), `models.py` (`Kruh`, `Solution`, `format_kruh_label`), `distribute.py` (the CP-SAT solver), `timesheet.py` (pure timetable layout math), `excel_export.py` (all xlsxwriter code, for both distribution and timesheet output), `errors.py`.
 - `survivor_app/ui/` — the PySide6 app: `main_window.py` (tabbed nav: Counter/Distribution/Timesheet/Config), `state.py` (`AppState`, the single source of truth shared across tabs, with Qt signals), `workers.py` (`DistributionWorker`, runs the solver on a `QThread` so the GUI thread never blocks), one screen module per tab, `config_editor/` (one sub-editor per config section), `widgets/` (small reusable controls).
-- `app.py` — GUI entry point. `counter_cli.py` / `distribute_cli.py` / `timesheet_cli.py` — thin argparse wrappers over `core/`, kept for scripting/automation and so `core/` stays testable without PySide6.
+- `app.py` — GUI entry point. `cli/counter_cli.py` / `cli/distribute_cli.py` / `cli/timesheet_cli.py` — thin argparse wrappers over `core/`, kept for scripting/automation and so `core/` stays testable without PySide6.
 - `example/` holds a sample `config.json` + `counts.json` pair; `survivor_app/resources/example_config.json` is the same config bundled into the app/executable as the first-run default.
 
 ## Data flow

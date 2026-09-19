@@ -84,12 +84,12 @@ candidate you can select and then edit.
 ## Command-line scripts
 
 The GUI's logic lives in `survivor_app/core/` (no GUI dependency), reused by
-three thin CLI wrappers for scripting/automation:
+three thin CLI wrappers in `cli/` for scripting/automation:
 
 ```
-python counter_cli.py [FILE]
-python distribute_cli.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]
-python timesheet_cli.py [--config CONFIG] [--output OUTPUT]
+python cli/counter_cli.py [FILE]
+python cli/distribute_cli.py [--config CONFIG] [--counts COUNTS] [--output OUTPUT]
+python cli/timesheet_cli.py [--config CONFIG] [--output OUTPUT]
 ```
 
 These mirror the original standalone scripts' interfaces and defaults

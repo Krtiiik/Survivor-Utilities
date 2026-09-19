@@ -7,6 +7,14 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** the CLI scripts moved into a `cli/` directory:
+  `counter_cli.py` -> `cli/counter_cli.py`, `distribute_cli.py` ->
+  `cli/distribute_cli.py`, `timesheet_cli.py` -> `cli/timesheet_cli.py`.
+  Invoke them as e.g. `python cli/counter_cli.py` instead of
+  `python counter_cli.py`; arguments and defaults are unchanged.
+
 ### Added
 
 - `docs/manual.md`: a Czech, non-technical, step-by-step user manual covering
