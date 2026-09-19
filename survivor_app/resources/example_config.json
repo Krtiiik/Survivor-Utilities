@@ -19,20 +19,20 @@
     "Subteams count": 4,
     "Subteams": [
         {
-            "Name": "1",
+            "Name": "Č",
             "Color": "#F08080"
         },
         {
-            "Name": "2",
+            "Name": "Z",
             "Color": "#98FB98"
         },
         {
-            "Name": "3",
+            "Name": "M",
             "Color": "#87CEFA"
         },
         {
-            "Name": "4",
-            "Color": "#fff491"
+            "Name": "F",
+            "Color": "#DDA0DD"
         }
     ],
     "Activities count": 10,

@@ -13,6 +13,15 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   installation and every tab (Counter, Distribution, Timesheet, Config),
   linked from the README.
 
+### Fixed
+
+- Default Subteam scheme (`example/config.json`, the bundled
+  `example_config.json`): the 4th Subteam's color was a pale yellow
+  (`#fff491`) instead of the intended purple, and all four Subteams were
+  named `"1"`-`"4"` instead of the Č/Z/M/F (red/green/blue/purple) color
+  letters used in the event's own planning materials. Renamed and recolored
+  to match.
+
 ## [1.3.0] - 2026-09-18
 
 ### Fixed
