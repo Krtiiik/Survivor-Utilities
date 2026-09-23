@@ -7,6 +7,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-09-23
+
 ### Removed
 
 - **Breaking:** the `"Teams count"` and `"Possible Teams counts"` config keys,
@@ -167,7 +169,8 @@ and versioning follows [Semantic Versioning](https://semver.org/).
   `timesheet_cli.py`) are now thin wrappers over `survivor_app/core/`, kept
   for scripting/automation.
 
-[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/Krtiiik/Survivor-Utilities/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.5.0...v2.0.0
 [1.5.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Krtiiik/Survivor-Utilities/compare/v1.2.0...v1.3.0
