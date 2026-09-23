@@ -105,6 +105,11 @@ through the app's Config tab, or by hand using the schema below.
   Distribution solver to try.
 - `"Possible Teams sizes"` (`list[int]`) -- candidate max Subteam sizes for the
   solver to try.
+- `"Min split part size"` (`int`, optional, default `3`) -- a Kruh larger than
+  the max Subteam size is spread across the fewest possible Subteams of one
+  Team, with the solver choosing how many people go into each part. This is
+  the fewest people any part may have. It is lowered automatically for a Kruh
+  that can't be split that evenly.
 - `"Teams names"` (`list[string]`) -- names of Teams. Must contain at least as
   many names as the larger of `"Teams count"` and the maximum of
   `"Possible Teams counts"`.

@@ -7,6 +7,27 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The Distribution solver now decides itself how to split a Kruh that is
+  larger than the max Subteam size. It still uses the fewest possible parts,
+  all in one Team, but it picks the size of each part. A Kruh of 13 with max
+  Subteam size 10 can now become e.g. 7 + 6 instead of always 10 + 3, which
+  gives more even Team and Subteam sizes.
+- Size balance now trades off against Obory in the solver. It used to only
+  break ties: a slightly more mixed Team is now accepted when it makes Team
+  and Subteam sizes noticeably more even. Empty Subteams in a Team count as
+  imbalanced.
+- The Distribution tab shows every Subteam of every Team, including empty
+  ones. Candidates are ranked by a `Score` (lower is better) that matches
+  the solver's objective, replacing `BalanceScore`.
+
+### Added
+
+- `"Min split part size"` config key (Config tab → Solver search space → "Min
+  people per split Kruh part", default 3): the fewest people any part of a
+  split Kruh may have. Older configs without the key load with the default.
+
 ## [1.4.0] - 2026-09-20
 
 ### Changed

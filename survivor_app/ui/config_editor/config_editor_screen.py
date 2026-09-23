@@ -73,6 +73,7 @@ class ConfigEditorScreen(QWidget):
         self._activities_editor.set_activities(config.activities)
         self._time_editor.set_time(config.time)
         self._search_space_editor.set_search_space(config.possible_teams_counts, config.possible_teams_sizes)
+        self._search_space_editor.set_min_split_part_size(config.min_split_part_size)
         self._errors_label.setText("")
 
     def _build_config(self) -> Config:
@@ -85,6 +86,7 @@ class ConfigEditorScreen(QWidget):
             activities=self._activities_editor.get_activities(),
             time=self._time_editor.get_time(),
             obory=self._obory_editor.get_obory(),
+            min_split_part_size=self._search_space_editor.get_min_split_part_size(),
         )
 
     def _save(self) -> None:

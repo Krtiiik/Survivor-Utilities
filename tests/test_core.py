@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from survivor_app.core.config import Config, OborConfig, load_config, validate
 from survivor_app.core.counts import decrement, increment, load_counts, summarize
-from survivor_app.core.distribute import compute_distributions, compute_kruhy_split
+from survivor_app.core.distribute import compute_distributions, compute_teams_distribution
 from survivor_app.core.excel_export import obor_color_map
 from survivor_app.core.history import CountHistory
 from survivor_app.core.models import Kruh, Solution, SolutionStatus, format_kruh_label
@@ -134,12 +134,46 @@ def test_format_kruh_label_handles_splits():
     assert format_kruh_label(Kruh(1102, 5, "Fyzika")) == "11[c]"
 
 
-def test_compute_kruhy_split_produces_friends():
+def test_oversize_kruh_is_split_by_solver_within_one_team():
+    # 13 people, max Subteam size 10: must become exactly 2 parts in the same Team,
+    # sized by the solver (not a fixed 10 + 3) and each at least the min part size.
+    kruhy = [Kruh(13, 13, "Fyzika"), Kruh(21, 7, "Informatika")]
+    solution = compute_teams_distribution(
+        num_teams=1, max_subteam_size=10, kruhy=kruhy, num_subteams=2, min_split_part_size=3
+    )
+    assert solution.status in (SolutionStatus.FEASIBLE, SolutionStatus.OPTIMAL)
+    assert len(solution.distribution) == 1
+    parts = [kruh for subteam in solution.distribution[0] for kruh in subteam if kruh.id >= 100]
+    assert sorted(kruh.id for kruh in parts) == [1300, 1301]
+    assert sum(kruh.count for kruh in parts) == 13
+    assert all(3 <= kruh.count <= 10 for kruh in parts)
+    # 20 people over 2 Subteams balances perfectly only if 13 isn't split 10 + 3.
+    assert [sum(kruh.count for kruh in subteam) for subteam in solution.distribution[0]] == [10, 10]
+
+
+def test_kruh_larger_than_a_whole_team_is_infeasible():
     kruhy = [Kruh(11, 25, "Fyzika")]
-    split, friends = compute_kruhy_split(kruhy, team_size=10)
-    assert [k.id for k in split] == [1100, 1101, 1102]
-    assert [k.count for k in split] == [10, 10, 5]
-    assert friends == [split]
+    solution = compute_teams_distribution(
+        num_teams=2, max_subteam_size=10, kruhy=kruhy, num_subteams=2, min_split_part_size=3
+    )
+    assert solution.status == SolutionStatus.INFEASIBLE
+    assert solution.distribution == []
+
+
+def test_config_without_min_split_part_size_uses_default():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+    data = config.to_dict()
+    del data["Min split part size"]
+    assert Config.from_dict(data).min_split_part_size == 3
+
+    config.min_split_part_size = 0
+    assert any("Min split part size" in error for error in validate(config))
+
+
+def test_solution_score_counts_empty_subteams():
+    balanced = Solution(1, 10, SolutionStatus.OPTIMAL, [[[Kruh(11, 4, "Fyzika")], [Kruh(12, 4, "Fyzika")]]])
+    lopsided = Solution(1, 10, SolutionStatus.OPTIMAL, [[[Kruh(11, 4, "Fyzika"), Kruh(12, 4, "Fyzika")], []]])
+    assert balanced.score() < lopsided.score()
 
 
 def test_compute_distributions_small_synthetic_case():

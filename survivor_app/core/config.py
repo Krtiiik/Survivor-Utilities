@@ -5,6 +5,9 @@ from dataclasses import dataclass, field
 
 ACTIVITY_TYPES = ("all", "split", "rest")
 
+# Default for "Min split part size", used when a config predates that key.
+DEFAULT_MIN_SPLIT_PART_SIZE = 3
+
 
 @dataclass
 class OborConfig:
@@ -75,6 +78,9 @@ class Config:
     activities: list[ActivityConfig]
     time: TimeConfig
     obory: list[OborConfig]
+    # Smallest number of people a Kruh too large for one Subteam may be split into
+    # per Subteam (the solver clamps it down if a Kruh can't be split that evenly).
+    min_split_part_size: int = DEFAULT_MIN_SPLIT_PART_SIZE
 
     @property
     def subteams_count(self) -> int:
@@ -95,6 +101,8 @@ class Config:
             activities=[ActivityConfig.from_dict(a) for a in d["Activities"]],
             time=TimeConfig.from_dict(d["Time"]),
             obory=[OborConfig.from_dict(o) for o in d["Obory"]],
+            # Newer, optional key -- older configs fall back to the default.
+            min_split_part_size=int(d.get("Min split part size", DEFAULT_MIN_SPLIT_PART_SIZE)),
         )
 
     def to_dict(self) -> dict:
@@ -102,6 +110,7 @@ class Config:
             "Teams count": self.teams_count,
             "Possible Teams counts": list(self.possible_teams_counts),
             "Possible Teams sizes": list(self.possible_teams_sizes),
+            "Min split part size": self.min_split_part_size,
             "Teams names": list(self.teams_names),
             "Subteams": [s.to_dict() for s in self.subteams],
             "Activities": [a.to_dict() for a in self.activities],
@@ -166,6 +175,9 @@ def validate(config: Config) -> list[str]:
         errors.append("Possible Teams sizes must not be empty.")
     if any(n <= 0 for n in config.possible_teams_sizes):
         errors.append("Possible Teams sizes must all be positive.")
+
+    if config.min_split_part_size < 1:
+        errors.append("Min split part size must be at least 1.")
 
     if not config.subteams:
         errors.append("At least one Subteam must be defined.")

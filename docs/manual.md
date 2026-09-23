@@ -110,7 +110,7 @@ Podzáložky:
 - **Subteams** – názvy a barvy Subteamů.
 - **Activities** – seznam aktivit v pořadí, v jakém proběhnou, a jejich typ (all / split / rest).
 - **Time** – čas začátku akce a délka jednoho bloku Aktivity.
-- **Solver search space** – kolik Teamů a jak velké Subteamy má výpočet na záložce Distribution zkoušet.
+- **Solver search space** – kolik Teamů a jak velké Subteamy má výpočet na záložce Distribution zkoušet. Kruh, který se nevejde do jednoho Subteamu, výpočet rozdělí mezi několik Subteamů téhož Teamu (např. 53[a] a 53[b]) a sám zvolí, kolik lidí půjde do které části. **Min people per split Kruh part** určuje, kolik lidí musí mít každá taková část nejméně (výchozí 3).
 
 **Uložení:**
 

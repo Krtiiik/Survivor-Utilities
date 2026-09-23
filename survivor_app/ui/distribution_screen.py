@@ -172,12 +172,12 @@ class DistributionScreen(QWidget):
         self._banner.setText("")
 
         feasible = [s for s in solutions if s.status in (SolutionStatus.FEASIBLE, SolutionStatus.OPTIMAL)]
-        feasible.sort(key=lambda s: s.size_balance_score())
+        feasible.sort(key=lambda s: s.score())
 
         for solution in feasible:
             label = (
                 f"#Teams={solution.num_teams}, MaxSubteamSize={solution.max_subteam_size}, "
-                f"{solution.status.name}, {solution.time:.1f}s, BalanceScore={solution.size_balance_score()}"
+                f"{solution.status.name}, {solution.time:.1f}s, Score={solution.score()}"
             )
             item = QListWidgetItem(label)
             item.setData(SOLUTION_ROLE, solution)
