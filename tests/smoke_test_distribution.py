@@ -32,6 +32,7 @@ def run():
     config = window.state.config
     config.possible_teams_sizes = [6]
     config.teams_names = ["Team A", "Team B"]
+    config.timesheet_teams_count = 2
     config.subteams = [SubteamConfig("1", "#ffffff"), SubteamConfig("2", "#000000")]
     config.obory = [OborConfig("Fyzika", [11, 12]), OborConfig("Informatika", [21])]
     window.state.counts = {11: 4, 12: 4, 21: 4}

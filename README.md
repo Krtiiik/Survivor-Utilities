@@ -62,8 +62,9 @@ timesheet without re-running the solver):
    to recompute them.
 3. **Timesheet** -- previews the event timetable (which Team/Subteam is doing
    which Activity, when) and exports it to `.xlsx` for printing.
-4. **Config** -- edit Obory, Teams, Subteams, Activities, event timing, and the
-   solver's search space, without ever hand-editing `config.json`.
+4. **Config** -- edit Obory, Teams, Subteams, the Timesheet (how many Teams it
+   shows, event timing, and Activities), and the solver's search space,
+   without ever hand-editing `config.json`.
 
 The Distribution and Timesheet tabs are disabled whenever the Config is
 invalid; fix it on the Config tab first.
@@ -115,14 +116,18 @@ through the app's Config tab, or by hand using the schema below.
   may spend on each Possible Teams size. When it runs out, the best
   distribution found so far is used. Longer usually gives more even Teams and
   Subteams.
-- `"Teams names"` (`list[string]`) -- one name per Team. The Timesheet renders
-  every Team, and the Distribution solver uses at most this many (fewer if
-  that works better). Older configs' `"Teams count"` and `"Possible Teams
-  counts"` keys are ignored.
+- `"Teams names"` (`list[string]`) -- one name per Team. The Distribution
+  solver uses at most this many (fewer if that works better). Older configs'
+  `"Teams count"` and `"Possible Teams counts"` keys are ignored.
 - `"Subteams"` (`list[object]`) -- one entry per Subteam:
   - `"Name"` (`str`)
   - `"Color"` (`str`) -- background color for the Subteam in split Activities,
     as `#rrggbb`.
+- `"Timesheet Teams count"` (`int`) -- how many Teams the Timesheet renders
+  (the first names of `"Teams names"`); Timesheet only. At most the number of
+  Teams names and of Activities. With fewer Teams than Activities, an
+  Activity has no Team in some time slots, marked `∅`. Defaults to the
+  largest valid value when missing.
 - `"Activities"` (`list[object]`) -- one entry per Activity, in schedule order:
   - `"Name"` (`str`)
   - `"Type"` (`str`) -- one of `all`, `split`, or `rest`.

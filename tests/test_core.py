@@ -12,7 +12,7 @@ from survivor_app.core.excel_export import obor_color_map
 from survivor_app.core.history import CountHistory
 from survivor_app.core.models import Kruh, Solution, SolutionStatus, format_kruh_label
 from survivor_app.core.solutions import load_solutions, save_solutions
-from survivor_app.core.timesheet import compute_timetable_layout
+from survivor_app.core.timesheet import EMPTY_SLOT_SYMBOL, compute_timetable_layout
 
 EXAMPLE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "example")
 
@@ -241,6 +241,42 @@ def test_compute_timetable_layout_matches_example_shape():
     time_block_cells = [c for c in layout.cells if c.kind == "time_block"]
     assert [c.text for c in time_block_cells] == ["13:00", "13:15", "13:30", "13:45", "14:00",
                                                     "14:15", "14:30", "14:45", "15:00", "15:15"]
+
+
+def test_timesheet_marks_activities_without_a_team():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+    assert config.timesheet_teams_count == config.activities_count == 10
+    full = compute_timetable_layout(config)
+    assert not [c for c in full.cells if c.kind == "team_empty"]
+
+    # 8 Teams over 10 Activities: 2 Activities are without a Team in every slot.
+    config.timesheet_teams_count = 8
+    assert validate(config) == []
+    layout = compute_timetable_layout(config)
+    empty_cells = [c for c in layout.cells if c.kind == "team_empty"]
+    assert len(empty_cells) == 2 * config.activities_count
+    assert all(c.text == EMPTY_SLOT_SYMBOL for c in empty_cells)
+    team_names = {c.text for c in layout.cells if c.kind in ("team_all", "team_rest")}
+    assert team_names <= set(config.teams_names[:8])
+
+
+def test_timesheet_teams_count_validation_and_default():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+
+    config.timesheet_teams_count = config.activities_count + 1
+    config.teams_names = config.teams_names + ["X", "Y"]
+    assert any("number of Activities" in error for error in validate(config))
+
+    config.timesheet_teams_count = len(config.teams_names) + 1
+    assert any("number of Teams names" in error for error in validate(config))
+
+    config.timesheet_teams_count = 0
+    assert any("at least 1" in error for error in validate(config))
+
+    # Missing key: as many Teams as the Timesheet can render.
+    data = config.to_dict()
+    del data["Timesheet Teams count"]
+    assert Config.from_dict(data).timesheet_teams_count == config.activities_count
 
 
 if __name__ == "__main__":

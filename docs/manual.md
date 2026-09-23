@@ -106,10 +106,12 @@ Zde se nastavuje vše, co ovlivňuje sčítání, rozdělení i rozvrh – Obory
 Podzáložky:
 
 - **Obory** – seznam Oborů, jejich Kruhy (čísla) a barva pro zobrazení.
-- **Teams** – názvy Teamů, jeden pro každý Team. Rozvrh zobrazí všechny Teamy ze seznamu; výpočet na záložce Distribution jich použije nejvýše tolik (může i méně, pokud to vyjde lépe).
+- **Teams** – názvy Teamů, jeden pro každý Team. Výpočet na záložce Distribution jich použije nejvýše tolik (může i méně, pokud to vyjde lépe).
 - **Subteams** – názvy a barvy Subteamů.
-- **Activities** – seznam aktivit v pořadí, v jakém proběhnou, a jejich typ (all / split / rest).
-- **Time** – čas začátku akce a délka jednoho bloku Aktivity.
+- **Timesheet** – vše, co ovlivňuje jen rozvrh:
+  - **Teams count** – kolik Teamů rozvrh zobrazí (prvních N názvů ze seznamu Teams). Nesmí být víc než názvů Teamů ani než Aktivit. Když je Teamů méně než Aktivit, některá Aktivita v některém časovém bloku nemá žádný Team – v rozvrhu je tam značka ∅.
+  - **Event start** a **Activity duration** – čas začátku akce a délka jednoho bloku Aktivity.
+  - **Activities** – seznam aktivit v pořadí, v jakém proběhnou, a jejich typ (all / split / rest).
 - **Solver search space** – jak velké Subteamy má výpočet na záložce Distribution zkoušet (počet Teamů si výpočet zvolí sám). Kruh, který se nevejde do jednoho Subteamu, výpočet rozdělí mezi několik Subteamů téhož Teamu (např. 53[a] a 53[b]) a sám zvolí, kolik lidí půjde do které části. **Min people per split Kruh part** určuje, kolik lidí musí mít každá taková část nejméně (výchozí 3). **Solver time limit per size** je čas v sekundách, který má výpočet na každou velikost Subteamu (výchozí 30). Delší čas obvykle dá vyrovnanější Teamy a Subteamy, ale celý výpočet trvá déle.
 
 **Uložení:**

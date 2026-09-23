@@ -13,6 +13,9 @@ ACTIVITIES_START_ROW = 1
 ACTIVITIES_START_COL = 0
 TEAMS_START_COL = 1
 
+# Shown in a time slot where an Activity has no Team (fewer Teams than Activities).
+EMPTY_SLOT_SYMBOL = "∅"
+
 
 @dataclass
 class TimetableCell:
@@ -64,7 +67,7 @@ def _activity_ordering(activity_types: list[str], num_teams: int) -> tuple[list[
 def compute_timetable_layout(config: Config) -> TimetableLayout:
     """Pure layout computation for the timetable grid -- no xlsxwriter dependency,
     so it can feed both the on-screen preview and the .xlsx export identically."""
-    num_teams = config.teams_count
+    num_teams = config.timesheet_teams_count
     teams_names = config.teams_names[:num_teams]
     subteams = config.subteams
     num_subteams = config.subteams_count
@@ -145,12 +148,16 @@ def compute_timetable_layout(config: Config) -> TimetableLayout:
             else:
                 raise ValueError(f"Unrecognized activity type [{activity_type}]")
 
+    # Leftover starting Activities (more Activities than Teams): the Activity cycles
+    # through the schedule with no Team, marked with EMPTY_SLOT_SYMBOL.
     for rest_index in rest_indices:
         for i_activity in range(num_activities):
             row = ACTIVITIES_START_ROW + (
                 ((i_activity + rest_index) * ACTIVITIES_JUMP_ROW) % activities_height
             )
             col = TEAMS_START_COL + i_activity
-            cells.append(TimetableCell(row, col, ACTIVITIES_JUMP_ROW, 1, None, "team_empty"))
+            cells.append(
+                TimetableCell(row, col, ACTIVITIES_JUMP_ROW, 1, EMPTY_SLOT_SYMBOL, "team_empty")
+            )
 
     return TimetableLayout(cells, num_rows, num_cols)

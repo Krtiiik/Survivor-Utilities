@@ -12,12 +12,11 @@ from PySide6.QtWidgets import (
 
 from ...core.config import Config, validate
 from ..state import AppState
-from .activities_editor import ActivitiesEditor
 from .obory_editor import OboryEditor
 from .search_space_editor import SearchSpaceEditor
 from .subteams_editor import SubteamsEditor
 from .teams_editor import TeamsEditor
-from .time_editor import TimeEditor
+from .timesheet_editor import TimesheetEditor
 
 
 class ConfigEditorScreen(QWidget):
@@ -39,10 +38,8 @@ class ConfigEditorScreen(QWidget):
         tabs.addTab(self._teams_editor, "Teams")
         self._subteams_editor = SubteamsEditor()
         tabs.addTab(self._subteams_editor, "Subteams")
-        self._activities_editor = ActivitiesEditor()
-        tabs.addTab(self._activities_editor, "Activities")
-        self._time_editor = TimeEditor()
-        tabs.addTab(self._time_editor, "Time")
+        self._timesheet_editor = TimesheetEditor()
+        tabs.addTab(self._timesheet_editor, "Timesheet")
         self._search_space_editor = SearchSpaceEditor()
         tabs.addTab(self._search_space_editor, "Solver search space")
         layout.addWidget(tabs, 1)
@@ -70,8 +67,7 @@ class ConfigEditorScreen(QWidget):
         self._obory_editor.set_obory(config.obory)
         self._teams_editor.set_teams(config.teams_names)
         self._subteams_editor.set_subteams(config.subteams)
-        self._activities_editor.set_activities(config.activities)
-        self._time_editor.set_time(config.time)
+        self._timesheet_editor.set_timesheet(config.timesheet_teams_count, config.time, config.activities)
         self._search_space_editor.set_search_space(config.possible_teams_sizes)
         self._search_space_editor.set_solver_time_limit(config.solver_time_limit)
         self._search_space_editor.set_min_split_part_size(config.min_split_part_size)
@@ -82,9 +78,10 @@ class ConfigEditorScreen(QWidget):
             possible_teams_sizes=self._search_space_editor.get_possible_teams_sizes(),
             teams_names=self._teams_editor.get_teams_names(),
             subteams=self._subteams_editor.get_subteams(),
-            activities=self._activities_editor.get_activities(),
-            time=self._time_editor.get_time(),
+            activities=self._timesheet_editor.get_activities(),
+            time=self._timesheet_editor.get_time(),
             obory=self._obory_editor.get_obory(),
+            timesheet_teams_count=self._timesheet_editor.get_teams_count(),
             min_split_part_size=self._search_space_editor.get_min_split_part_size(),
             solver_time_limit=self._search_space_editor.get_solver_time_limit(),
         )

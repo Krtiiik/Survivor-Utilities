@@ -9,11 +9,28 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- `"Timesheet Teams count"` config key: how many Teams the Timesheet renders
+  (the first names of `"Teams names"`), independent of the Distribution
+  solver. With fewer Teams than Activities, a time slot where an Activity has
+  no Team now shows `∅` (in the preview and the exported `.xlsx`). Configs
+  without the key default to the largest valid count.
+
 - `"Solver time limit"` config key (Config tab → Solver search space →
   "Solver time limit per size", default 30 s): how long the Distribution
   solver may search for each Possible Teams size before using the best
   distribution found so far. Previously fixed at 30 s. Older configs without
   the key load with the default.
+
+### Changed
+
+- Config tab: the Activities and Time sub-tabs are merged into a single
+  "Timesheet" sub-tab, together with the new Teams count.
+
+### Fixed
+
+- Timesheet tab: crashed with more Teams names than Activities (since
+  2.0.0 rendered every name). The Timesheet Teams count is now validated
+  against the number of Activities.
 
 ## [2.0.0] - 2026-09-23
 

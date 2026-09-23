@@ -78,6 +78,9 @@ class Config:
     activities: list[ActivityConfig]
     time: TimeConfig
     obory: list[OborConfig]
+    # Number of Teams the Timesheet renders (the first names of teams_names). Only
+    # used by the Timesheet -- the Distribution solver uses teams_count instead.
+    timesheet_teams_count: int
     # Smallest number of people a Kruh too large for one Subteam may be split into
     # per Subteam (the solver clamps it down if a Kruh can't be split that evenly).
     min_split_part_size: int = DEFAULT_MIN_SPLIT_PART_SIZE
@@ -87,8 +90,8 @@ class Config:
 
     @property
     def teams_count(self) -> int:
-        """Number of Teams: rendered by the Timesheet, and the most the Distribution
-        solver may use (it picks the fewest that work on its own)."""
+        """Most Teams the Distribution solver may use (it picks the fewest that work
+        on its own). The Timesheet renders timesheet_teams_count Teams instead."""
         return len(self.teams_names)
 
     @property
@@ -102,14 +105,21 @@ class Config:
     @staticmethod
     def from_dict(d: dict) -> "Config":
         # "Teams count"/"Possible Teams counts" from older configs are ignored: the
-        # Team count is now len("Teams names").
+        # solver's Team count is now len("Teams names").
+        teams_names = list(d["Teams names"])
+        activities = [ActivityConfig.from_dict(a) for a in d["Activities"]]
         return Config(
             possible_teams_sizes=[int(x) for x in d["Possible Teams sizes"]],
-            teams_names=list(d["Teams names"]),
+            teams_names=teams_names,
             subteams=[SubteamConfig.from_dict(s) for s in d["Subteams"]],
-            activities=[ActivityConfig.from_dict(a) for a in d["Activities"]],
+            activities=activities,
             time=TimeConfig.from_dict(d["Time"]),
             obory=[OborConfig.from_dict(o) for o in d["Obory"]],
+            # Newer key -- older configs default to as many Teams as the Timesheet
+            # can render (one per name, at most one per Activity).
+            timesheet_teams_count=int(
+                d.get("Timesheet Teams count", min(len(teams_names), len(activities)))
+            ),
             # Newer, optional key -- older configs fall back to the default.
             min_split_part_size=int(d.get("Min split part size", DEFAULT_MIN_SPLIT_PART_SIZE)),
             solver_time_limit=int(d.get("Solver time limit", DEFAULT_SOLVER_TIME_LIMIT)),
@@ -122,6 +132,7 @@ class Config:
             "Solver time limit": self.solver_time_limit,
             "Teams names": list(self.teams_names),
             "Subteams": [s.to_dict() for s in self.subteams],
+            "Timesheet Teams count": self.timesheet_teams_count,
             "Activities": [a.to_dict() for a in self.activities],
             "Time": self.time.to_dict(),
             "Obory": [o.to_dict() for o in self.obory],
@@ -136,6 +147,7 @@ class Config:
             activities=[],
             time=TimeConfig(start="00:00", activity_duration="00:15"),
             obory=[],
+            timesheet_teams_count=0,
         )
 
 
@@ -184,6 +196,20 @@ def validate(config: Config) -> list[str]:
 
     if not config.activities:
         errors.append("At least one Activity must be defined.")
+
+    if config.timesheet_teams_count < 1:
+        errors.append("Timesheet Teams count must be at least 1.")
+    if config.timesheet_teams_count > len(config.teams_names):
+        errors.append(
+            f"Timesheet Teams count ({config.timesheet_teams_count}) must not exceed the "
+            f"number of Teams names ({len(config.teams_names)})."
+        )
+    if config.timesheet_teams_count > config.activities_count:
+        errors.append(
+            f"Timesheet Teams count ({config.timesheet_teams_count}) must not exceed the "
+            f"number of Activities ({config.activities_count}): every Team starts the "
+            f"event on a different Activity."
+        )
     for activity in config.activities:
         if activity.type not in ACTIVITY_TYPES:
             errors.append(

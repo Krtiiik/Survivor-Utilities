@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor, QFontMetrics
 from PySide6.QtWidgets import QAbstractItemView, QTableWidget, QTableWidgetItem
 
@@ -45,6 +46,8 @@ class TimesheetPreview(QTableWidget):
                 font.setPointSize(font.pointSize() + 4)
                 font.setBold(True)
                 item.setFont(font)
+            if cell.kind == "team_empty":
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.setItem(cell.row, cell.col, item)
             if cell.row_span > 1 or cell.col_span > 1:
                 self.setSpan(cell.row, cell.col, cell.row_span, cell.col_span)

@@ -20,8 +20,9 @@ class TeamsEditor(QWidget):
 
         layout.addWidget(
             QLabel(
-                "Teams names, one per Team (drag to reorder). The Timesheet shows every Team; "
-                "the Distribution solver uses at most this many, fewer if that works better."
+                "Teams names, one per Team (drag to reorder). The Distribution solver uses at "
+                "most this many, fewer if that works better. The Timesheet shows the first "
+                "few, as set by Teams count on the Timesheet tab."
             )
         )
         self._list = QListWidget()

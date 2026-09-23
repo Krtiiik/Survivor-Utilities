@@ -137,7 +137,9 @@ def render_timetable_xlsx(layout: TimetableLayout, config: Config, filename: str
         )
         fmt_team_all = workbook.add_format({"align": "center", "valign": "vcenter", "border": 1})
         fmt_team_rest = fmt_team_all
-        fmt_team_empty = workbook.add_format({"border": 1, "bg_color": "#cacaca"})
+        fmt_team_empty = workbook.add_format(
+            {"align": "center", "valign": "vcenter", "border": 1, "bg_color": "#cacaca", "font_size": 16}
+        )
         fmt_split_cache: dict[tuple[str, bool, bool], object] = {}
 
         def fmt_split(color: str, border_top: bool, border_bottom: bool):
