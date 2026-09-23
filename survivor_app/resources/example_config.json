@@ -1,6 +1,7 @@
 {
     "Possible Teams sizes": [10, 9, 8, 7],
     "Min split part size": 3,
+    "Solver time limit": 30,
     "Teams names": [
         "α [Alfa]",
         "β [Beta]",

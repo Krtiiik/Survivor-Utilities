@@ -27,7 +27,7 @@ def run():
     app = QApplication(sys.argv)
     window = MainWindow()
 
-    # Small, fast-to-solve config so the smoke test doesn't take SOLVER_TIME_LIMIT
+    # Small, fast-to-solve config so the smoke test doesn't take the solver time limit
     # seconds per combination.
     config = window.state.config
     config.possible_teams_sizes = [6]

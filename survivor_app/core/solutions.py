@@ -43,7 +43,7 @@ def _solution_from_dict(d: dict) -> Solution:
 
 def save_solutions(solutions: list[Solution], filename: str) -> None:
     """Persist every computed Solution, not just the one the user has selected --
-    re-running the solver is expensive (up to SOLVER_TIME_LIMIT seconds per
+    re-running the solver is expensive (up to config.solver_time_limit seconds per
     combination), so a later session can load this file and jump straight to
     picking a candidate instead of recomputing from scratch."""
     data = [_solution_to_dict(solution) for solution in solutions]

@@ -111,6 +111,10 @@ through the app's Config tab, or by hand using the schema below.
   Team, with the solver choosing how many people go into each part. This is
   the fewest people any part may have. It is lowered automatically for a Kruh
   that can't be split that evenly.
+- `"Solver time limit"` (`int`, optional, default `30`) -- seconds the solver
+  may spend on each Possible Teams size. When it runs out, the best
+  distribution found so far is used. Longer usually gives more even Teams and
+  Subteams.
 - `"Teams names"` (`list[string]`) -- one name per Team. The Timesheet renders
   every Team, and the Distribution solver uses at most this many (fewer if
   that works better). Older configs' `"Teams count"` and `"Possible Teams

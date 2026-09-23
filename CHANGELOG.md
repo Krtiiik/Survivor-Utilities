@@ -7,6 +7,14 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `"Solver time limit"` config key (Config tab → Solver search space →
+  "Solver time limit per size", default 30 s): how long the Distribution
+  solver may search for each Possible Teams size before using the best
+  distribution found so far. Previously fixed at 30 s. Older configs without
+  the key load with the default.
+
 ## [2.0.0] - 2026-09-23
 
 ### Removed

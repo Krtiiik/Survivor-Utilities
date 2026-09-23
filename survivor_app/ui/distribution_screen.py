@@ -92,9 +92,10 @@ class DistributionScreen(QWidget):
 
         config = self._state.config
         combos = len(config.possible_teams_sizes)
-        worst_case_minutes = combos * 30 / 60
+        worst_case_minutes = combos * config.solver_time_limit / 60
         self._search_space_label.setText(
-            f"Search space: up to {config.teams_count} Teams, {combos} team size(s), "
+            f"Search space: up to {config.teams_count} Teams, {combos} team size(s) x "
+            f"{config.solver_time_limit} s, "
             f"up to ~{worst_case_minutes:.1f} min worst-case."
         )
         self._run_button.setEnabled(self._state.is_config_valid())

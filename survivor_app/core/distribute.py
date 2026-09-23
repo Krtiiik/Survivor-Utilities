@@ -5,7 +5,7 @@ from typing import Callable
 
 from ortools.sat.python import cp_model
 
-from .config import Config
+from .config import DEFAULT_SOLVER_TIME_LIMIT, Config
 from .models import (
     OBORY_WEIGHT,
     SUBTEAM_SPREAD_WEIGHT,
@@ -15,9 +15,6 @@ from .models import (
     Solution,
     SolutionStatus,
 )
-
-SOLVER_TIME_LIMIT = 30  # seconds, per Possible Teams size
-
 
 class _CancelCallback(cp_model.CpSolverSolutionCallback):
     """Lets a single CP-SAT solve be interrupted early via a should_cancel() poll."""
@@ -69,6 +66,7 @@ def compute_distributions(
             kruhy_all,
             config.subteams_count,
             config.min_split_part_size,
+            time_limit=config.solver_time_limit,
             should_cancel=should_cancel,
         )
         solution.time = time.time() - t_start
@@ -97,6 +95,7 @@ def compute_teams_distribution(
     kruhy: list[Kruh],
     num_subteams: int,
     min_split_part_size: int,
+    time_limit: float = DEFAULT_SOLVER_TIME_LIMIT,
     should_cancel: Callable[[], bool] | None = None,
 ) -> Solution:
     """Assign whole Kruhy to Teams and their people to Subteams.
@@ -106,6 +105,7 @@ def compute_teams_distribution(
     with the solver choosing how many people go into each part (each part at least
     min_split_part_size, clamped down when the Kruh can't be split that evenly).
     Parts are returned as synthetic Kruhy with ids 100*kruh_id + part_index.
+    The solve stops after time_limit seconds with the best distribution found.
     """
     # Obor domain is derived from the Kruhy actually being solved for, rather than
     # a fixed enum, so Obor names are entirely config-driven.
@@ -300,7 +300,7 @@ def compute_teams_distribution(
 
     # Solve ------------------------------------------------------------------
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = SOLVER_TIME_LIMIT
+    solver.parameters.max_time_in_seconds = time_limit
 
     if should_cancel is not None:
         status = solver.solve(model, _CancelCallback(should_cancel))

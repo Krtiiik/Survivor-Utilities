@@ -9,7 +9,7 @@ from ..core.models import Solution
 
 class DistributionWorker(QObject):
     """Runs compute_distributions off the UI thread (meant to be moved via
-    QThread.moveToThread). A single CP-SAT solve can take up to SOLVER_TIME_LIMIT
+    QThread.moveToThread). A single CP-SAT solve can take up to config.solver_time_limit
     seconds, and a full run tries every Possible Teams size, so this must never
     run on the GUI thread."""
 

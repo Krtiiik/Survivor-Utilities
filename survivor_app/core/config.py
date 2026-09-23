@@ -7,6 +7,8 @@ ACTIVITY_TYPES = ("all", "split", "rest")
 
 # Default for "Min split part size", used when a config predates that key.
 DEFAULT_MIN_SPLIT_PART_SIZE = 3
+# Default for "Solver time limit" (seconds per solve), same.
+DEFAULT_SOLVER_TIME_LIMIT = 30
 
 
 @dataclass
@@ -79,6 +81,9 @@ class Config:
     # Smallest number of people a Kruh too large for one Subteam may be split into
     # per Subteam (the solver clamps it down if a Kruh can't be split that evenly).
     min_split_part_size: int = DEFAULT_MIN_SPLIT_PART_SIZE
+    # Seconds a single solve (one Possible Teams size) may take before the solver
+    # stops and returns the best distribution found so far.
+    solver_time_limit: int = DEFAULT_SOLVER_TIME_LIMIT
 
     @property
     def teams_count(self) -> int:
@@ -107,12 +112,14 @@ class Config:
             obory=[OborConfig.from_dict(o) for o in d["Obory"]],
             # Newer, optional key -- older configs fall back to the default.
             min_split_part_size=int(d.get("Min split part size", DEFAULT_MIN_SPLIT_PART_SIZE)),
+            solver_time_limit=int(d.get("Solver time limit", DEFAULT_SOLVER_TIME_LIMIT)),
         )
 
     def to_dict(self) -> dict:
         return {
             "Possible Teams sizes": list(self.possible_teams_sizes),
             "Min split part size": self.min_split_part_size,
+            "Solver time limit": self.solver_time_limit,
             "Teams names": list(self.teams_names),
             "Subteams": [s.to_dict() for s in self.subteams],
             "Activities": [a.to_dict() for a in self.activities],
@@ -165,6 +172,9 @@ def validate(config: Config) -> list[str]:
 
     if config.min_split_part_size < 1:
         errors.append("Min split part size must be at least 1.")
+
+    if config.solver_time_limit < 1:
+        errors.append("Solver time limit must be at least 1 second.")
 
     if not config.subteams:
         errors.append("At least one Subteam must be defined.")

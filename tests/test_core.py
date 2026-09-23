@@ -170,6 +170,22 @@ def test_config_without_min_split_part_size_uses_default():
     assert any("Min split part size" in error for error in validate(config))
 
 
+def test_config_solver_time_limit_round_trips_with_default():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+    assert config.solver_time_limit == 30
+
+    config.solver_time_limit = 90
+    data = config.to_dict()
+    assert data["Solver time limit"] == 90
+    assert Config.from_dict(data).solver_time_limit == 90
+
+    del data["Solver time limit"]
+    assert Config.from_dict(data).solver_time_limit == 30
+
+    config.solver_time_limit = 0
+    assert any("Solver time limit" in error for error in validate(config))
+
+
 def test_teams_count_is_derived_from_teams_names():
     config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
     assert config.teams_count == len(config.teams_names)
@@ -193,7 +209,7 @@ def test_solution_score_counts_empty_subteams():
 
 def test_compute_distributions_small_synthetic_case():
     # A tiny, fast-to-solve scenario -- not the full example config, which can take
-    # up to SOLVER_TIME_LIMIT seconds per Possible Teams size.
+    # up to the solver time limit per Possible Teams size.
     from survivor_app.core.config import OborConfig, SubteamConfig
 
     config = Config.empty()
