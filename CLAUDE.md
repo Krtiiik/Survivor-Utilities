@@ -66,9 +66,9 @@ change (new feature, fix, behavior change) gets an entry under
 `## [Unreleased]` at the top, added in the same commit/session as the change
 itself, not batched later.
 
-When a batch of `[Unreleased]` changes is substantial enough to be worth
-shipping as a release (judgment call — a meaningful feature or fix, not every
-single commit), move that section under a new `## [X.Y.Z] - YYYY-MM-DD`
+Never cut a release or bump the version unless explicitly asked to. Changes
+accumulate under `[Unreleased]` until then. When asked for a release, move
+that section under a new `## [X.Y.Z] - YYYY-MM-DD`
 heading, bump the version (patch for fixes, minor for backwards-compatible
 features, major for breaking changes to `config.json`'s schema or the CLI
 interfaces), update the compare links at the bottom of the file, and tag the
