@@ -91,11 +91,10 @@ class DistributionScreen(QWidget):
         had_results = self._results_list.count() > 0
 
         config = self._state.config
-        combos = len(config.possible_teams_counts) * len(config.possible_teams_sizes)
+        combos = len(config.possible_teams_sizes)
         worst_case_minutes = combos * 30 / 60
         self._search_space_label.setText(
-            f"Search space: {len(config.possible_teams_counts)} team count(s) x "
-            f"{len(config.possible_teams_sizes)} team size(s) = {combos} combination(s), "
+            f"Search space: up to {config.teams_count} Teams, {combos} team size(s), "
             f"up to ~{worst_case_minutes:.1f} min worst-case."
         )
         self._run_button.setEnabled(self._state.is_config_valid())
@@ -112,7 +111,7 @@ class DistributionScreen(QWidget):
         self._banner.setText("")
         self._progress_bar.setValue(0)
 
-        combos = len(self._state.config.possible_teams_counts) * len(self._state.config.possible_teams_sizes)
+        combos = len(self._state.config.possible_teams_sizes)
         self._progress_bar.setMaximum(max(combos, 1))
 
         self._thread = QThread()
@@ -139,7 +138,7 @@ class DistributionScreen(QWidget):
     def _on_progress(self, event: ProgressEvent) -> None:
         if event.stage == "started":
             self._log.appendPlainText(
-                f"Computing solution for #Teams={event.num_teams}, MaxSubteamSize={event.max_subteam_size}"
+                f"Computing solution for MaxSubteamSize={event.max_subteam_size} (up to {event.num_teams} Teams)"
             )
         else:
             self._log.appendPlainText(
@@ -176,7 +175,7 @@ class DistributionScreen(QWidget):
 
         for solution in feasible:
             label = (
-                f"#Teams={solution.num_teams}, MaxSubteamSize={solution.max_subteam_size}, "
+                f"#Teams={len(solution.distribution)}, MaxSubteamSize={solution.max_subteam_size}, "
                 f"{solution.status.name}, {solution.time:.1f}s, Score={solution.score()}"
             )
             item = QListWidgetItem(label)

@@ -106,11 +106,11 @@ Zde se nastavuje vše, co ovlivňuje sčítání, rozdělení i rozvrh – Obory
 Podzáložky:
 
 - **Obory** – seznam Oborů, jejich Kruhy (čísla) a barva pro zobrazení.
-- **Teams** – názvy Teamů.
+- **Teams** – názvy Teamů, jeden pro každý Team. Rozvrh zobrazí všechny Teamy ze seznamu; výpočet na záložce Distribution jich použije nejvýše tolik (může i méně, pokud to vyjde lépe).
 - **Subteams** – názvy a barvy Subteamů.
 - **Activities** – seznam aktivit v pořadí, v jakém proběhnou, a jejich typ (all / split / rest).
 - **Time** – čas začátku akce a délka jednoho bloku Aktivity.
-- **Solver search space** – kolik Teamů a jak velké Subteamy má výpočet na záložce Distribution zkoušet. Kruh, který se nevejde do jednoho Subteamu, výpočet rozdělí mezi několik Subteamů téhož Teamu (např. 53[a] a 53[b]) a sám zvolí, kolik lidí půjde do které části. **Min people per split Kruh part** určuje, kolik lidí musí mít každá taková část nejméně (výchozí 3).
+- **Solver search space** – jak velké Subteamy má výpočet na záložce Distribution zkoušet (počet Teamů si výpočet zvolí sám). Kruh, který se nevejde do jednoho Subteamu, výpočet rozdělí mezi několik Subteamů téhož Teamu (např. 53[a] a 53[b]) a sám zvolí, kolik lidí půjde do které části. **Min people per split Kruh part** určuje, kolik lidí musí mít každá taková část nejméně (výchozí 3).
 
 **Uložení:**
 
@@ -123,7 +123,7 @@ Dokud nastavení není v pořádku (viz chybová hláška), zůstávají zálož
 
 **Záložky Distribution/Timesheet jsou šedé a nejdou otevřít.** Nastavení na záložce Config není v pořádku. Přepněte se na Config a opravte chyby vypsané po kliknutí na Save Config.
 
-**Run Solver nenajde žádné rozdělení (žádný kandidát).** Zkuste na záložce Config → Solver search space rozšířit možné počty a velikosti Teamů/Subteamů – aktuální kombinace nemusí pro daný počet lidí stačit.
+**Run Solver nenajde žádné rozdělení (žádný kandidát).** Zkuste na záložce Config → Solver search space přidat větší velikosti Subteamů, nebo na podzáložce Teams přidat další Teamy – aktuální nastavení nemusí pro daný počet lidí stačit.
 
 **Někdo omylem smazal/přepsal počty na Counteru.** Použijte **Load counts...** a načtěte poslední zálohu vytvořenou přes „Save counts as...“, případně původní `counts.json` z předchozí zálohy dat.
 

@@ -20,7 +20,7 @@ parser.add_argument("--output", type=str, default="distributions.xlsx")
 
 def _print_progress(event: ProgressEvent) -> None:
     if event.stage == "started":
-        print(f"Computing solution for #Teams={event.num_teams}, MaxSubteamSize={event.max_subteam_size}")
+        print(f"Computing solution for MaxSubteamSize={event.max_subteam_size} (up to {event.num_teams} Teams)")
     else:
         print(f"> Computed in {event.solution.time:.2f}s. Result: {event.solution.status.name}")
 

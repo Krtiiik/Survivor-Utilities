@@ -68,18 +68,16 @@ class ConfigEditorScreen(QWidget):
     def _reload(self) -> None:
         config = self._state.config
         self._obory_editor.set_obory(config.obory)
-        self._teams_editor.set_teams(config.teams_count, config.teams_names)
+        self._teams_editor.set_teams(config.teams_names)
         self._subteams_editor.set_subteams(config.subteams)
         self._activities_editor.set_activities(config.activities)
         self._time_editor.set_time(config.time)
-        self._search_space_editor.set_search_space(config.possible_teams_counts, config.possible_teams_sizes)
+        self._search_space_editor.set_search_space(config.possible_teams_sizes)
         self._search_space_editor.set_min_split_part_size(config.min_split_part_size)
         self._errors_label.setText("")
 
     def _build_config(self) -> Config:
         return Config(
-            teams_count=self._teams_editor.get_teams_count(),
-            possible_teams_counts=self._search_space_editor.get_possible_teams_counts(),
             possible_teams_sizes=self._search_space_editor.get_possible_teams_sizes(),
             teams_names=self._teams_editor.get_teams_names(),
             subteams=self._subteams_editor.get_subteams(),

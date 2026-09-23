@@ -1,6 +1,4 @@
 {
-    "Teams count": 10,
-    "Possible Teams counts": [9, 10, 11, 12],
     "Possible Teams sizes": [10, 9, 8, 7],
     "Min split part size": 3,
     "Teams names": [
@@ -13,9 +11,7 @@
         "π [Pí]",
         "ρ [Ró]",
         "σ [Sigma]",
-        "κ [Kappa]",
-        "φ [Fí]",
-        "ω [Omega]"
+        "κ [Kappa]"
     ],
     "Subteams count": 4,
     "Subteams": [

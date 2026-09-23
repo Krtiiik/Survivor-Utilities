@@ -70,16 +70,20 @@ invalid; fix it on the Config tab first.
 
 ### Team distribution algorithm
 
-For each combination of values from "Possible Teams counts" and "Possible
-Teams sizes" (edited on the Config tab), the solver builds a constraint model
-and tries to assign the Kruhy into Teams and Subteams, minimizing multiple
-objectives, in order:
+For each value of "Possible Teams sizes" (the max Subteam size, edited on the
+Config tab), the solver builds a constraint model and assigns the Kruhy into
+at most as many Teams as there are "Teams names", and into their Subteams. It
+minimizes, in order:
 
-- Number of Teams used.
-- Number of different Obory within a single Team.
+- Number of Teams used (so it picks the Team count itself).
+- A weighted blend of the number of different Obory within each Team and how
+  uneven the Team and Subteam sizes are.
 
-Every combination that finds a feasible or optimal solution shows up as a
-candidate you can select and then edit.
+A Kruh larger than the max Subteam size is spread across the fewest possible
+Subteams of its Team, with the solver choosing each part's size.
+
+Every size that finds a feasible or optimal solution shows up as a candidate
+you can select and then edit.
 
 ## Command-line scripts
 
@@ -100,9 +104,6 @@ These mirror the original standalone scripts' interfaces and defaults
 `config.json` is a single file read by all three parts of the app/CLI. Edit it
 through the app's Config tab, or by hand using the schema below.
 
-- `"Teams count"` (`int`) -- number of Teams to render on the Timesheet.
-- `"Possible Teams counts"` (`list[int]`) -- candidate Team counts for the
-  Distribution solver to try.
 - `"Possible Teams sizes"` (`list[int]`) -- candidate max Subteam sizes for the
   solver to try.
 - `"Min split part size"` (`int`, optional, default `3`) -- a Kruh larger than
@@ -110,9 +111,10 @@ through the app's Config tab, or by hand using the schema below.
   Team, with the solver choosing how many people go into each part. This is
   the fewest people any part may have. It is lowered automatically for a Kruh
   that can't be split that evenly.
-- `"Teams names"` (`list[string]`) -- names of Teams. Must contain at least as
-  many names as the larger of `"Teams count"` and the maximum of
-  `"Possible Teams counts"`.
+- `"Teams names"` (`list[string]`) -- one name per Team. The Timesheet renders
+  every Team, and the Distribution solver uses at most this many (fewer if
+  that works better). Older configs' `"Teams count"` and `"Possible Teams
+  counts"` keys are ignored.
 - `"Subteams"` (`list[object]`) -- one entry per Subteam:
   - `"Name"` (`str`)
   - `"Color"` (`str`) -- background color for the Subteam in split Activities,

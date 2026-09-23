@@ -10,8 +10,8 @@ from ..core.models import Solution
 class DistributionWorker(QObject):
     """Runs compute_distributions off the UI thread (meant to be moved via
     QThread.moveToThread). A single CP-SAT solve can take up to SOLVER_TIME_LIMIT
-    seconds, and a full run tries every (Possible Teams count) x (Possible Teams
-    size) combination, so this must never run on the GUI thread."""
+    seconds, and a full run tries every Possible Teams size, so this must never
+    run on the GUI thread."""
 
     progress = Signal(object)  # core.models.ProgressEvent
     finished = Signal(list)  # list[Solution]

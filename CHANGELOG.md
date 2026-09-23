@@ -7,6 +7,25 @@ and versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+
+- **Breaking:** the `"Teams count"` and `"Possible Teams counts"` config keys,
+  along with their Config tab fields. The number of Teams is now the length
+  of `"Teams names"`. The Timesheet renders every named Team, and the
+  Distribution solver uses at most that many. It already minimized Teams
+  used, so it now picks the Team count itself instead of searching over
+  candidate counts. A run is one solve per Possible Teams size (e.g. 4
+  instead of 16). Older configs still load and the removed keys are ignored,
+  but a config whose `"Teams names"` list was longer than its `"Teams
+  count"` now renders more Teams on the Timesheet: remove the extra names.
+
+### Changed
+
+- The Distribution tab's `#Teams=` now shows the number of Teams the
+  candidate actually uses.
+- The example/default config lists 10 Teams names (was 12), which keeps its
+  Timesheet at the 10 Teams it rendered before.
+
 ## [1.5.0] - 2026-09-23
 
 ### Changed

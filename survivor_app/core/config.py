@@ -70,8 +70,6 @@ class TimeConfig:
 
 @dataclass
 class Config:
-    teams_count: int
-    possible_teams_counts: list[int]
     possible_teams_sizes: list[int]
     teams_names: list[str]
     subteams: list[SubteamConfig]
@@ -83,6 +81,12 @@ class Config:
     min_split_part_size: int = DEFAULT_MIN_SPLIT_PART_SIZE
 
     @property
+    def teams_count(self) -> int:
+        """Number of Teams: rendered by the Timesheet, and the most the Distribution
+        solver may use (it picks the fewest that work on its own)."""
+        return len(self.teams_names)
+
+    @property
     def subteams_count(self) -> int:
         return len(self.subteams)
 
@@ -92,9 +96,9 @@ class Config:
 
     @staticmethod
     def from_dict(d: dict) -> "Config":
+        # "Teams count"/"Possible Teams counts" from older configs are ignored: the
+        # Team count is now len("Teams names").
         return Config(
-            teams_count=int(d["Teams count"]),
-            possible_teams_counts=[int(x) for x in d["Possible Teams counts"]],
             possible_teams_sizes=[int(x) for x in d["Possible Teams sizes"]],
             teams_names=list(d["Teams names"]),
             subteams=[SubteamConfig.from_dict(s) for s in d["Subteams"]],
@@ -107,8 +111,6 @@ class Config:
 
     def to_dict(self) -> dict:
         return {
-            "Teams count": self.teams_count,
-            "Possible Teams counts": list(self.possible_teams_counts),
             "Possible Teams sizes": list(self.possible_teams_sizes),
             "Min split part size": self.min_split_part_size,
             "Teams names": list(self.teams_names),
@@ -121,8 +123,6 @@ class Config:
     @staticmethod
     def empty() -> "Config":
         return Config(
-            teams_count=0,
-            possible_teams_counts=[],
             possible_teams_sizes=[],
             teams_names=[],
             subteams=[],
@@ -157,19 +157,6 @@ def validate(config: Config) -> list[str]:
 
     if not config.teams_names:
         errors.append("Teams names must not be empty.")
-    max_possible_teams = max(config.possible_teams_counts, default=0)
-    required_names = max(config.teams_count, max_possible_teams)
-    if len(config.teams_names) < required_names:
-        errors.append(
-            f"Teams names must contain at least {required_names} names "
-            f"(the larger of Teams count and the max of Possible Teams counts), "
-            f"found {len(config.teams_names)}."
-        )
-
-    if not config.possible_teams_counts:
-        errors.append("Possible Teams counts must not be empty.")
-    if any(n <= 0 for n in config.possible_teams_counts):
-        errors.append("Possible Teams counts must all be positive.")
 
     if not config.possible_teams_sizes:
         errors.append("Possible Teams sizes must not be empty.")

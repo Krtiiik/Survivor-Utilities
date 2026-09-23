@@ -170,6 +170,21 @@ def test_config_without_min_split_part_size_uses_default():
     assert any("Min split part size" in error for error in validate(config))
 
 
+def test_teams_count_is_derived_from_teams_names():
+    config = load_config(os.path.join(EXAMPLE_DIR, "config.json"))
+    assert config.teams_count == len(config.teams_names)
+
+    # Configs saved before the Team-count keys were removed still load; the keys
+    # are ignored and not written back.
+    data = config.to_dict()
+    data["Teams count"] = 3
+    data["Possible Teams counts"] = [2, 3]
+    legacy = Config.from_dict(data)
+    assert legacy.teams_count == len(config.teams_names)
+    assert "Teams count" not in legacy.to_dict()
+    assert "Possible Teams counts" not in legacy.to_dict()
+
+
 def test_solution_score_counts_empty_subteams():
     balanced = Solution(1, 10, SolutionStatus.OPTIMAL, [[[Kruh(11, 4, "Fyzika")], [Kruh(12, 4, "Fyzika")]]])
     lopsided = Solution(1, 10, SolutionStatus.OPTIMAL, [[[Kruh(11, 4, "Fyzika"), Kruh(12, 4, "Fyzika")], []]])
@@ -178,11 +193,10 @@ def test_solution_score_counts_empty_subteams():
 
 def test_compute_distributions_small_synthetic_case():
     # A tiny, fast-to-solve scenario -- not the full example config, which can take
-    # up to SOLVER_TIME_LIMIT seconds per (count, size) combination.
+    # up to SOLVER_TIME_LIMIT seconds per Possible Teams size.
     from survivor_app.core.config import OborConfig, SubteamConfig
 
     config = Config.empty()
-    config.possible_teams_counts = [2]
     config.possible_teams_sizes = [5]
     config.teams_names = ["Team A", "Team B"]
     config.subteams = [SubteamConfig("1", "#ffffff"), SubteamConfig("2", "#000000")]

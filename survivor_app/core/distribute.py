@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 import time
 from typing import Callable
 
@@ -17,7 +16,7 @@ from .models import (
     SolutionStatus,
 )
 
-SOLVER_TIME_LIMIT = 30  # seconds, per (num_teams, max_subteam_size) combination
+SOLVER_TIME_LIMIT = 30  # seconds, per Possible Teams size
 
 
 class _CancelCallback(cp_model.CpSolverSolutionCallback):
@@ -38,9 +37,10 @@ def compute_distributions(
     progress_callback: Callable[[ProgressEvent], None] | None = None,
     should_cancel: Callable[[], bool] | None = None,
 ) -> list[Solution]:
-    """Try every (Possible Teams count) x (Possible Teams size) combination from config.
+    """Solve once per Possible Teams size from config, each time with up to
+    config.teams_count Teams (the solver uses the fewest that work).
 
-    Returns one Solution per combination attempted (feasible, optimal, or not).
+    Returns one Solution per size attempted (feasible, optimal, or not).
     """
     kruhy_all = [
         Kruh(kruh_id, counts[kruh_id], obor.name)
@@ -49,10 +49,11 @@ def compute_distributions(
         if kruh_id in counts
     ]
 
-    combos = list(itertools.product(config.possible_teams_counts, config.possible_teams_sizes))
+    num_teams = config.teams_count
+    combos = list(config.possible_teams_sizes)
     solutions: list[Solution] = []
 
-    for combo_index, (num_teams, max_subteam_size) in enumerate(combos):
+    for combo_index, max_subteam_size in enumerate(combos):
         if should_cancel is not None and should_cancel():
             break
 

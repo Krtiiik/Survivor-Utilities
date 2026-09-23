@@ -30,8 +30,6 @@ def run():
     # Small, fast-to-solve config so the smoke test doesn't take SOLVER_TIME_LIMIT
     # seconds per combination.
     config = window.state.config
-    config.teams_count = 2
-    config.possible_teams_counts = [2]
     config.possible_teams_sizes = [6]
     config.teams_names = ["Team A", "Team B"]
     config.subteams = [SubteamConfig("1", "#ffffff"), SubteamConfig("2", "#000000")]
