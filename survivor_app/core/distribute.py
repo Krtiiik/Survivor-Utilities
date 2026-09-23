@@ -16,6 +16,7 @@ from .models import (
     SolutionStatus,
 )
 
+
 class _CancelCallback(cp_model.CpSolverSolutionCallback):
     """Lets a single CP-SAT solve be interrupted early via a should_cancel() poll."""
 
